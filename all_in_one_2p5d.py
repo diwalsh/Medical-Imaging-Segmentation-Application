@@ -308,14 +308,12 @@ def main(dimension='2d', stride=1, csv='data/train.csv', root_dir='dataset_UWM_G
             print("The dimension is different to the specified ones. Using 2d by default")
         for folder in CASE_FOLDERS:
             all_relevant_imgs_in_case, img_ids = get_folder_files(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS)
-            print((all_relevant_imgs_in_case[0:20]))
             train_files, valid_files, train_img_ids, valid_img_ids = train_test_split(all_relevant_imgs_in_case, img_ids, train_size=0.8, random_state=42, shuffle=True)
             create_and_write_img_msk(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, desc=f"Train :: {folder}")
             create_and_write_img_msk(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, desc=f"Valid :: {folder}")
     else:
         for folder in CASE_FOLDERS:
             all_relevant_imgs_in_case, img_ids = get_folder_files_2p5d(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS, stride=stride)
-            print((all_relevant_imgs_in_case[0:20]))
             train_files, valid_files, train_img_ids, valid_img_ids = train_test_split(all_relevant_imgs_in_case, img_ids, train_size=0.8, random_state=42, shuffle=True)
             create_and_write_img_msk_2p5d(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, desc=f"Train :: {folder}")
             create_and_write_img_msk_2p5d(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, desc=f"Valid :: {folder}")
