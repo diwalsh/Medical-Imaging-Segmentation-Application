@@ -175,7 +175,7 @@ def rgb_to_onehot_to_gray(rgb_arr, color_map=id2color):
  
  
 # Function to create and write image-mask pair for each file path in given directories.
-def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, desc=None):
+def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, mask_rgb, desc=None):
     # iterates over each file_path and file_id pair using zip(file_paths, file_ids), while also displaying a progress bar using tqdm.
     for file_path, file_id in tqdm(zip(file_paths, file_ids), ascii=True, total=len(file_ids), desc=desc, leave=True):
         # loads the image corresponding to the current file_path using the load_img function.
@@ -187,7 +187,7 @@ def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, m
         # extracts the height and width of the image from its file path using a regular expression and stores them in img_shape_H_W
         img_shape_H_W = list(map(int, IMG_SHAPE.search(file_path).group()[1:-1].split("_")))[::-1]
         # initializes an array mask_image filled with zeros, with a shape determined by the image dimensions (img_shape_H_W) and the number of classes (len(CLASSES)).
-        mask_image = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
+        mask_image_color = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
 
         # iterates over each class label in CLASSES and retrieves the rows from IMG_DF where the "class" column matches the current class label.
         for i, class_label in enumerate(CLASSES):
@@ -198,10 +198,10 @@ def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, m
             # decoded mask to the appropriate channel of mask_image.
             if len(class_row):
                 rle = class_row.segmentation.squeeze()
-                mask_image[..., i] = rle_decode(rle, img_shape_H_W) * 255
+                mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
 
         # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
-        mask_image = rgb_to_onehot_to_gray(mask_image, color_map=id2color)
+        mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
 
         # extracts the case and date information from the file path and the file name.
         FILE_CASE_AND_DATE = GET_CASE_AND_DATE.search(file_path).group()
@@ -213,16 +213,21 @@ def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, m
         new_name = FILE_CASE_AND_DATE + "_" + FILE_NAME
  
         dst_img_path = os.path.join(save_img_dir, new_name)
-        dst_msk_path = os.path.join(save_msk_dir, new_name)
-
+        dst_msk_path_gray = os.path.join(save_msk_dir, new_name)
+        
         # writes the image and mask arrays to the corresponding destination paths using cv2.imwrite.
         cv2.imwrite(dst_img_path, image)
-        cv2.imwrite(dst_msk_path, mask_image)
+        cv2.imwrite(dst_msk_path_gray, mask_image_gray)
+        if mask_rgb:
+            ROOT_MSK_DIR_RGB = save_msk_dir + "_rgb"
+            os.makedirs(ROOT_MSK_DIR_RGB, exist_ok=True)
+            dst_msk_path_color = os.path.join(ROOT_MSK_DIR_RGB, new_name)
+            cv2.imwrite(dst_msk_path_color, cv2.cvtColor(mask_image_color, cv2.COLOR_RGB2BGR))
  
     return
  
 # Function to create and write image-mask pair for each file path in given directories.
-def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, desc=None):
+def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, mask_rgb, desc=None):
     # iterates over each file_path and file_id pair using zip(file_paths, file_ids), while also displaying a progress bar using tqdm.
     for file_path, file_id in tqdm(zip(file_paths, file_ids), ascii=True, total=len(file_ids), desc=desc, leave=True):
         # loads the image corresponding to the current file_path using the load_img function.
@@ -234,7 +239,7 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
         # extracts the height and width of the image from its file path using a regular expression and stores them in img_shape_H_W
         img_shape_H_W = list(map(int, IMG_SHAPE.search(file_path[0]).group()[1:-1].split("_")))[::-1]
         # initializes an array mask_image filled with zeros, with a shape determined by the image dimensions (img_shape_H_W) and the number of classes (len(CLASSES)).
-        mask_image = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
+        mask_image_color = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
 
         # iterates over each class label in CLASSES and retrieves the rows from IMG_DF where the "class" column matches the current class label.
         for i, class_label in enumerate(CLASSES):
@@ -245,10 +250,10 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
             # decoded mask to the appropriate channel of mask_image.
             if len(class_row):
                 rle = class_row.segmentation.squeeze()
-                mask_image[..., i] = rle_decode(rle, img_shape_H_W) * 255
+                mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
 
         # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
-        mask_image = rgb_to_onehot_to_gray(mask_image, color_map=id2color)
+        mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
 
         # extracts the case and date information from the file path and the file name.
         FILE_CASE_AND_DATE = GET_CASE_AND_DATE.search(file_path[0]).group()
@@ -260,22 +265,28 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
         new_name = FILE_CASE_AND_DATE + "_" + FILE_NAME
  
         dst_img_path = os.path.join(save_img_dir, new_name)
-        dst_msk_path = os.path.join(save_msk_dir, new_name)
-
+        dst_msk_path_gray = os.path.join(save_msk_dir, new_name)
+        
         # writes the image and mask arrays to the corresponding destination paths using cv2.imwrite.
         cv2.imwrite(dst_img_path, image)
-        cv2.imwrite(dst_msk_path, mask_image)
+        cv2.imwrite(dst_msk_path_gray, mask_image_gray)
+        if mask_rgb:
+            ROOT_MSK_DIR_RGB = save_msk_dir + "_rgb"
+            os.makedirs(ROOT_MSK_DIR_RGB, exist_ok=True)
+            dst_msk_path_color = os.path.join(ROOT_MSK_DIR_RGB, new_name)
+            cv2.imwrite(dst_msk_path_color, cv2.cvtColor(mask_image_color, cv2.COLOR_RGB2BGR))
  
     return
 
 import argparse
 
-def main(dimension='2d', stride=1, csv='data/train.csv', root_dir='dataset_UWM_GI_Tract_train_valid'):
+def main(dimension='2d', stride=1, csv='data/train.csv', root_dir='dataset_UWM_GI_Tract_train_valid', mask_rgb=0):
     # Process input parameters
     print("Dimension:", dimension)
     print("Stride:", stride)
     print("CSV:", csv)
     print("Root Dir:", root_dir)
+    print("Mask RGB:", mask_rgb) 
     
     # Set random seed for reproducibility
     np.random.seed(42)
@@ -291,6 +302,9 @@ def main(dimension='2d', stride=1, csv='data/train.csv', root_dir='dataset_UWM_G
     ROOT_TRAIN_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "train", "masks")
     ROOT_VALID_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "valid", "images")
     ROOT_VALID_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "valid", "masks")
+#    if mask_rgb:
+#        ROOT_TRAIN_MSK_DIR_RGB = os.path.join(ROOT_DATASET_DIR, "train", "masks_rgb")
+#        ROOT_VALID_MSK_DIR_RGB = os.path.join(ROOT_DATASET_DIR, "valid", "masks_rgb")
  
     # Create directories if not already present
     os.makedirs(ROOT_TRAIN_IMG_DIR, exist_ok=True)
@@ -309,14 +323,14 @@ def main(dimension='2d', stride=1, csv='data/train.csv', root_dir='dataset_UWM_G
         for folder in CASE_FOLDERS:
             all_relevant_imgs_in_case, img_ids = get_folder_files(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS)
             train_files, valid_files, train_img_ids, valid_img_ids = train_test_split(all_relevant_imgs_in_case, img_ids, train_size=0.8, random_state=42, shuffle=True)
-            create_and_write_img_msk(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, desc=f"Train :: {folder}")
-            create_and_write_img_msk(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, desc=f"Valid :: {folder}")
+            create_and_write_img_msk(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
+            create_and_write_img_msk(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
     else:
         for folder in CASE_FOLDERS:
             all_relevant_imgs_in_case, img_ids = get_folder_files_2p5d(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS, stride=stride)
             train_files, valid_files, train_img_ids, valid_img_ids = train_test_split(all_relevant_imgs_in_case, img_ids, train_size=0.8, random_state=42, shuffle=True)
-            create_and_write_img_msk_2p5d(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, desc=f"Train :: {folder}")
-            create_and_write_img_msk_2p5d(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, desc=f"Valid :: {folder}")
+            create_and_write_img_msk_2p5d(train_files, train_img_ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
+            create_and_write_img_msk_2p5d(valid_files, valid_img_ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
     
 
 if __name__ == "__main__":
@@ -327,6 +341,7 @@ if __name__ == "__main__":
     parser.add_argument("-stride", type=int, help="Specify the stride as an integer (default 1) for 2.5d")
     parser.add_argument("-csv", type=str, help="path and file name of the csv file with rle data: <path>/<file.csv>")
     parser.add_argument("-dir", type=str, help="Specify the directory where the images will be stored")
+    parser.add_argument("-mask_rgb", type=int, help="Generate masks also in RGB format")
     
     args = parser.parse_args()
 
@@ -334,4 +349,4 @@ if __name__ == "__main__":
     if not any(vars(args).values()):
         parser.print_help()
     else:
-        main(args.dimension, args.stride, args.csv, args.dir)
+        main(args.dimension, args.stride, args.csv, args.dir, args.mask_rgb)
