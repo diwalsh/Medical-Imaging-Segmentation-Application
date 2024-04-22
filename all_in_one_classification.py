@@ -52,7 +52,7 @@ def load_img(img_path):
     img = (img - img.min()) / (img.max() - img.min()) * 255.0
     # conversion to unit8 (8-bits)
     img = img.astype(np.uint8)
- 
+    img = np.tile(img[..., None], [1, 1, 3])  # gray to rgb 
     return img
          
  
@@ -108,10 +108,10 @@ def main(csv='data/train.csv', root_dir='dataset_UWM_GI_Tract_train_valid'):
 
     # Define paths for training and validation image and mask directories
     ROOT_DATASET_DIR = root_dir #+ '_dim' + dimension + '_stride' + str(stride)
-    ROOT_TRAIN_DIR_0 = os.path.join(ROOT_DATASET_DIR, "train", "class_0")
-    ROOT_TRAIN_DIR_1 = os.path.join(ROOT_DATASET_DIR, "train", "class_1")
-    ROOT_VALID_DIR_0 = os.path.join(ROOT_DATASET_DIR, "valid", "class_0")
-    ROOT_VALID_DIR_1 = os.path.join(ROOT_DATASET_DIR, "valid", "class_1")
+    ROOT_TRAIN_DIR_0 = os.path.join(ROOT_DATASET_DIR, "train", "0")
+    ROOT_TRAIN_DIR_1 = os.path.join(ROOT_DATASET_DIR, "train", "1")
+    ROOT_VALID_DIR_0 = os.path.join(ROOT_DATASET_DIR, "valid", "0")
+    ROOT_VALID_DIR_1 = os.path.join(ROOT_DATASET_DIR, "valid", "1")
  
     # Create directories if not already present
     os.makedirs(ROOT_TRAIN_DIR_0, exist_ok=True)
