@@ -282,7 +282,7 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
 
 import argparse
 
-def main(dimension='2d', stride=1, csv='data/train.csv', input_dir='images', output_dir='dataset_UWM_GI_Tract_train_valid', valid_patients=None, mask_rgb=0):
+def main(dimension, stride, csv, input_dir, output_dir, valid_patients, mask_rgb):
     
     # Process input parameters
     print("Dimension:", dimension)
@@ -337,24 +337,29 @@ def main(dimension='2d', stride=1, csv='data/train.csv', input_dir='images', out
             else:
                 create_and_write_img_msk_2p5d(files, ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
 
-    
-
 if __name__ == "__main__":
+
+    import argparse
+    import ast
 
     parser = argparse.ArgumentParser()
     # Define input parameters
     parser.add_argument("-dimension", choices=['2d', '2.5d'], default='2d', help="Choose either '2d' or '2.5d'")
     parser.add_argument("-stride", type=int, default=1, help="Specify the stride as an integer (default 1) for 2.5d")
-    parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data: <path>/<file.csv> (default 'data/train.csv'")
+    parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data (default 'data/train.csv'")
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
-    parser.add_argument("-valid_patients", type=list, default=VAL_PAT, help=f"Specify the directory where the images will be stored (default {VAL_PAT})")
+    parser.add_argument("-valid_patients", type=str, default=VAL_PAT, help=f"Specify the list of test images (default \"{VAL_PAT}\")")
     parser.add_argument("-mask_rgb", type=int, default=0, help="Generate masks also in RGB format (default 0)")
     
     args = parser.parse_args()
 
+    # Convert valid_patients argument to a list
+    args.valid_patients = ast.literal_eval(args.valid_patients)
+
     # Check if no arguments are provided, then print help
-    if not any(vars(args).values()):
+    #if not any(vars(args).values()):
+    if not vars(args):
         parser.print_help()
     else:
         # Call the main function with the parsed arguments
