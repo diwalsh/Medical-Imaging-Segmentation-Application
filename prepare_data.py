@@ -12,8 +12,8 @@ We've downloaded the "train" folder. The original train set images lie inside
 the "original" folder.
 """
 
-VAL_PAT = ['2','6','7','9','11','49','146','147','148','149','154','156']
-  
+#VAL_PAT = ['2','6','7','9','11','49','146','147','148','149','154','156']
+VAL_PAT = "['2', '6', '7', '9', '11', '15', '16', '140', '145', '146', '147', '148', '149', '154', '156']"
 # Define regular expressions to extract case, date, slice number, and image shape from file paths
 GET_CASE = re.compile(r"case[0-9]{1-3}")
 GET_CASE_AND_DATE = re.compile(r"case[0-9]{1,3}_day[0-9]{1,3}")
@@ -200,7 +200,8 @@ def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, m
             # decoded mask to the appropriate channel of mask_image.
             if len(class_row):
                 rle = class_row.segmentation.squeeze()
-                mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
+                if not(type(rle) == float):
+                    mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
 
         # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
         mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
@@ -252,7 +253,8 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
             # decoded mask to the appropriate channel of mask_image.
             if len(class_row):
                 rle = class_row.segmentation.squeeze()
-                mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
+                if not(type(rle) == float):
+                    mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
 
         # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
         mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
@@ -282,7 +284,7 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
 
 import argparse
 
-def main(dimension, stride, csv, input_dir, output_dir, valid_patients, mask_rgb):
+def main(dimension, stride, csv, input_dir, output_dir, valid_patients, remove_non_seg, mask_rgb):
     
     # Process input parameters
     print("Dimension:", dimension)
@@ -291,6 +293,7 @@ def main(dimension, stride, csv, input_dir, output_dir, valid_patients, mask_rgb
     print("Input Dir:", input_dir)
     print("Output Dir:", output_dir)
     print("Validation Patients:", valid_patients)
+    print("Remove Non-Segmented Images:", remove_non_seg)
     print("Mask RGB:", mask_rgb) 
     
     # Set random seed for reproducibility
@@ -316,7 +319,10 @@ def main(dimension, stride, csv, input_dir, output_dir, valid_patients, mask_rgb
     os.makedirs(ROOT_VALID_MSK_DIR, exist_ok=True)
 
     # Load the main dataframe from csv file and drop rows with null values, in this way, it only contains relevant images
-    oDF = pd.read_csv(TRAIN_CSV).dropna(axis=0)
+    if remove_non_seg:
+        oDF = pd.read_csv(TRAIN_CSV).dropna(axis=0)
+    else:
+        oDF = pd.read_csv(TRAIN_CSV)
     oIDS = oDF["id"].to_numpy()
     
     # Main script execution: for each folder, split the data into training and validation sets, and create/write image-mask pairs.
@@ -350,6 +356,7 @@ if __name__ == "__main__":
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
     parser.add_argument("-valid_patients", type=str, default=VAL_PAT, help=f"Specify the list of test images (default \"{VAL_PAT}\")")
+    parser.add_argument("-remove_non_seg", type=int, default=1, help="Remove pictures that are not segmented (default 1)")
     parser.add_argument("-mask_rgb", type=int, default=0, help="Generate masks also in RGB format (default 0)")
     
     args = parser.parse_args()
@@ -363,4 +370,4 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         # Call the main function with the parsed arguments
-        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.valid_patients, args.mask_rgb)
+        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.valid_patients, args.remove_non_seg, args.mask_rgb)
