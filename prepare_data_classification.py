@@ -10,25 +10,14 @@ from sklearn.model_selection import train_test_split
 TEST_PAT = "['2', '6', '7', '9', '11', '15', '16', '140', '145', '146', '147', '148', '149', '154', '156']"
 
 # Define regular expressions to extract case, date, slice number, and image shape from file paths
+GET_CASE = re.compile(r"case[0-9]{1-3}")
 GET_CASE_AND_DATE = re.compile(r"case[0-9]{1,3}_day[0-9]{1,3}")
 GET_SLICE_NUM = re.compile(r"slice_[0-9]{1,4}")
 IMG_SHAPE = re.compile(r"_[0-9]{1,3}_[0-9]{1,3}_")
  
 # Define classes for image segmentation
 CLASSES = ["large_bowel", "small_bowel", "stomach"]
- 
-# Create a mapping of class ID to RGB value
-color2id = {
-    (0, 0, 0): 0,  # background pixel
-    (0, 0, 255): 1,  # Blue - Stomach
-    (0, 255, 0): 2,  # Green - Small bowel
-    (255, 0, 0): 3,  # Red - Large bowel
-}
- 
-# Reverse map from id to color
-id2color = {v: k for k, v in color2id.items()}
- 
- 
+  
 # Function to get all relevant image files in a given directory
 def get_folder_files(folder_path, only_IDS):
     all_relevant_imgs_in_case = []
@@ -142,36 +131,9 @@ def load_img_2p5d(img_paths):
             break
     
     return img
-        
-# Function to convert RGB image to one-hot encoded grayscale image based on color map.
-def rgb_to_onehot_to_gray(rgb_arr, color_map=id2color):
-    num_classes = len(color_map)
-    # creates a new tuple named shape that contains the height and width dimensions of the image followed by
-    # the num_classes value as the third dimension. 
-    shape = rgb_arr.shape[:2] + (num_classes,)
-    # creates a new NumPy array arr filled with zeros, with the shape determined by shape.
-    # This array will store the one-hot encoded representations of the input RGB image.
-    arr = np.zeros(shape, dtype=np.float32)
-
-    # conversion looop: iterates over each class in the color_map
-    for i, cls in enumerate(color_map):
-        # one-hot encoding for each class. It reshapes the input RGB image into a 2D array wher each row 
-        # represent a pixel and its RGB values. It then compared each pixel's RGB values to the RGB values
-        # of the current class in the 'color_map'. If the RGB values match, it assigns a value of 1 to the
-        # corresponding position in 'arr' for that class. Finally, it reshaps the result to match the height
-        # and width dimensions of the input image.
-        # Basically, this array is a 3D matrix (W, H, 4) with 0s and 1s
-        arr[:, :, i] = np.all(rgb_arr.reshape((-1, 3)) == color_map[i], axis=1).reshape(shape[:2])
-
-    # performs an argmax operation along the last axis of the arr array, effectively converting the one-hot encoded
-    # representation back to grayscale. The result is an array where each pixel is represented by a single integer
-    # corresponding to the class label with the highest value in the one-hot encoded representation.
-    # Basically, this is a 2D matrix, with value 0 for background, 1 for stomach, 2 for small bowel, and 3 for large bowel
-    return arr.argmax(-1)
- 
- 
-# Function to create and write image-mask pair for each file path in given directories.
-def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, mask_rgb, desc=None):
+         
+# Function to create and write images for each file path in given directories.
+def create_and_write_img(file_paths, file_ids, save_dir_0, save_dir_1, main_df, desc=None):
     # iterates over each file_path and file_id pair using zip(file_paths, file_ids), while also displaying a progress bar using tqdm.
     for file_path, file_id in tqdm(zip(file_paths, file_ids), ascii=True, total=len(file_ids), desc=desc, leave=True):
         # loads the image corresponding to the current file_path using the load_img function.
@@ -179,52 +141,33 @@ def create_and_write_img_msk(file_paths, file_ids, save_img_dir, save_msk_dir, m
 
         # retrieves the rows from the DataFrame MAIN_DF where the "id" column matches the current file_id.
         IMG_DF = main_df[main_df["id"] == file_id]
-
-        # extracts the height and width of the image from its file path using a regular expression and stores them in img_shape_H_W
-        img_shape_H_W = list(map(int, IMG_SHAPE.search(file_path).group()[1:-1].split("_")))[::-1]
-        # initializes an array mask_image filled with zeros, with a shape determined by the image dimensions (img_shape_H_W) and the number of classes (len(CLASSES)).
-        mask_image_color = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
-
-        # iterates over each class label in CLASSES and retrieves the rows from IMG_DF where the "class" column matches the current class label.
-        for i, class_label in enumerate(CLASSES):
-            class_row = IMG_DF[IMG_DF["class"] == class_label]
-
-            # If there are rows corresponding to the current class label, it retrieves the segmentation mask as run-length
-            # encoded string (rle) from the DataFrame and decodes it using the rle_decode function. It then assigns the 
-            # decoded mask to the appropriate channel of mask_image.
-            if len(class_row):
-                rle = class_row.segmentation.squeeze()
-                if not(type(rle) == float):
-                    mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
-
-        # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
-        mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
-
+        # detects if the image contains the organs of interest (stomach, small bowel, larg bowel)
+        all_zeros = (IMG_DF["classification"] == 0).all()
+        
         # extracts the case and date information from the file path and the file name.
         FILE_CASE_AND_DATE = GET_CASE_AND_DATE.search(file_path).group()
+        FILE_SLICE_NUMBER = GET_SLICE_NUM.search(file_path).group()
+        
         # splits the file_path into two parts: the directory path and the file name. It returns these two parts as a tuple (directory_path, file_name)
         FILE_NAME = os.path.split(file_path)[-1]
 
         # constructs new file names for the image and mask files based on the case, date, and original file name.
         # It then creates the destination paths for saving the image and mask files.
-        new_name = FILE_CASE_AND_DATE + "_" + FILE_NAME
- 
-        dst_img_path = os.path.join(save_img_dir, new_name)
-        dst_msk_path_gray = os.path.join(save_msk_dir, new_name)
-        
+        new_name = FILE_CASE_AND_DATE + "_" + FILE_SLICE_NUMBER + ".png"      
+        #FILE_NAME
+
+        if all_zeros:
+            dst_img_path = os.path.join(save_dir_0, new_name)
+        else:
+            dst_img_path = os.path.join(save_dir_1, new_name)
+            
         # writes the image and mask arrays to the corresponding destination paths using cv2.imwrite.
         cv2.imwrite(dst_img_path, image)
-        cv2.imwrite(dst_msk_path_gray, mask_image_gray)
-        if mask_rgb:
-            ROOT_MSK_DIR_RGB = save_msk_dir + "_rgb"
-            os.makedirs(ROOT_MSK_DIR_RGB, exist_ok=True)
-            dst_msk_path_color = os.path.join(ROOT_MSK_DIR_RGB, new_name)
-            cv2.imwrite(dst_msk_path_color, cv2.cvtColor(mask_image_color, cv2.COLOR_RGB2BGR))
- 
+        
     return
- 
-# Function to create and write image-mask pair for each file path in given directories.
-def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_dir, main_df, mask_rgb, desc=None):
+
+# Function to create and write images for each file path in given directories.
+def create_and_write_img_2p5d(file_paths, file_ids, save_dir_0, save_dir_1, main_df, desc=None):
     # iterates over each file_path and file_id pair using zip(file_paths, file_ids), while also displaying a progress bar using tqdm.
     for file_path, file_id in tqdm(zip(file_paths, file_ids), ascii=True, total=len(file_ids), desc=desc, leave=True):
         # loads the image corresponding to the current file_path using the load_img function.
@@ -232,53 +175,35 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
 
         # retrieves the rows from the DataFrame MAIN_DF where the "id" column matches the current file_id.
         IMG_DF = main_df[main_df["id"] == file_id]
-
-        # extracts the height and width of the image from its file path using a regular expression and stores them in img_shape_H_W
-        img_shape_H_W = list(map(int, IMG_SHAPE.search(file_path[0]).group()[1:-1].split("_")))[::-1]
-        # initializes an array mask_image filled with zeros, with a shape determined by the image dimensions (img_shape_H_W) and the number of classes (len(CLASSES)).
-        mask_image_color = np.zeros(img_shape_H_W + [len(CLASSES)], dtype=np.uint8)
-
-        # iterates over each class label in CLASSES and retrieves the rows from IMG_DF where the "class" column matches the current class label.
-        for i, class_label in enumerate(CLASSES):
-            class_row = IMG_DF[IMG_DF["class"] == class_label]
-
-            # If there are rows corresponding to the current class label, it retrieves the segmentation mask as run-length
-            # encoded string (rle) from the DataFrame and decodes it using the rle_decode function. It then assigns the 
-            # decoded mask to the appropriate channel of mask_image.
-            if len(class_row):
-                rle = class_row.segmentation.squeeze()
-                if not(type(rle) == float):
-                    mask_image_color[..., i] = rle_decode(rle, img_shape_H_W) * 255
-
-        # converts the multi-channel one-hot encoded mask to a grayscale image using the rgb_to_onehot_to_gray function.
-        mask_image_gray = rgb_to_onehot_to_gray(mask_image_color, color_map=id2color)
-
+        # detects if the image contains the organs of interest (stomach, small bowel, larg bowel)
+        all_zeros = (IMG_DF["classification"] == 0).all()
+        
         # extracts the case and date information from the file path and the file name.
         FILE_CASE_AND_DATE = GET_CASE_AND_DATE.search(file_path[0]).group()
+        FILE_SLICE_NUMBER = GET_SLICE_NUM.search(file_path[0]).group()
+        
         # splits the file_path into two parts: the directory path and the file name. It returns these two parts as a tuple (directory_path, file_name)
         FILE_NAME = os.path.split(file_path[0])[-1]
 
         # constructs new file names for the image and mask files based on the case, date, and original file name.
         # It then creates the destination paths for saving the image and mask files.
+        #new_name = FILE_CASE_AND_DATE + "_" + FILE_SLICE_NUMBER + ".png"
         new_name = FILE_CASE_AND_DATE + "_" + FILE_NAME
- 
-        dst_img_path = os.path.join(save_img_dir, new_name)
-        dst_msk_path_gray = os.path.join(save_msk_dir, new_name)
-        
+        #FILE_NAME
+
+        if all_zeros:
+            dst_img_path = os.path.join(save_dir_0, new_name)
+        else:
+            dst_img_path = os.path.join(save_dir_1, new_name)
+            
         # writes the image and mask arrays to the corresponding destination paths using cv2.imwrite.
         cv2.imwrite(dst_img_path, image)
-        cv2.imwrite(dst_msk_path_gray, mask_image_gray)
-        if mask_rgb:
-            ROOT_MSK_DIR_RGB = save_msk_dir + "_rgb"
-            os.makedirs(ROOT_MSK_DIR_RGB, exist_ok=True)
-            dst_msk_path_color = os.path.join(ROOT_MSK_DIR_RGB, new_name)
-            cv2.imwrite(dst_msk_path_color, cv2.cvtColor(mask_image_color, cv2.COLOR_RGB2BGR))
- 
+        
     return
 
 import argparse
 
-def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_non_seg, mask_rgb):
+def main(dimension, stride, csv, input_dir, output_dir, test_patients):
     
     # Process input parameters
     print("Dimension:", dimension)
@@ -287,8 +212,6 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_no
     print("Input Dir:", input_dir)
     print("Output Dir:", output_dir)
     print("Test Patients:", test_patients)
-    print("Remove Non-Segmented Images:", remove_non_seg)
-    print("Mask RGB:", mask_rgb) 
     
     # Set random seed for reproducibility
     np.random.seed(42)
@@ -296,46 +219,46 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_no
     # Define paths for training dataset and image directory
     TRAIN_CSV = csv
 
-    ORIG_IMG_DIR = input_dir
+    ORIG_IMG_DIR = input_dir #os.path.join(input_dir,train)
     CASE_FOLDERS = os.listdir(ORIG_IMG_DIR)
 
-    # Define paths for training and test image and mask directories
-    ROOT_DATASET_DIR = output_dir #+ '_dim' + dimension + '_stride' + str(stride)
-    ROOT_TRAIN_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "train", "images")
-    ROOT_TRAIN_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "train", "masks")
-    ROOT_TEST_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "test", "images")
-    ROOT_TEST_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "test", "masks")
- 
+    # Define paths for training and validation image and mask directories
+    ROOT_DATASET_DIR = output_dir
+    ROOT_TRAIN_DIR_0 = os.path.join(ROOT_DATASET_DIR, "train", "0")
+    ROOT_TRAIN_DIR_1 = os.path.join(ROOT_DATASET_DIR, "train", "1")
+    ROOT_TEST_DIR_0 = os.path.join(ROOT_DATASET_DIR, "test", "0")
+    ROOT_TEST_DIR_1 = os.path.join(ROOT_DATASET_DIR, "test", "1")
+     
     # Create directories if not already present
-    os.makedirs(ROOT_TRAIN_IMG_DIR, exist_ok=True)
-    os.makedirs(ROOT_TRAIN_MSK_DIR, exist_ok=True)
-    os.makedirs(ROOT_TEST_IMG_DIR, exist_ok=True)
-    os.makedirs(ROOT_TEST_MSK_DIR, exist_ok=True)
+    os.makedirs(ROOT_TRAIN_DIR_0, exist_ok=True)
+    os.makedirs(ROOT_TRAIN_DIR_1, exist_ok=True)
+    os.makedirs(ROOT_TEST_DIR_0, exist_ok=True)
+    os.makedirs(ROOT_TEST_DIR_1, exist_ok=True)
 
-    # Load the main dataframe from csv file and drop rows with null values, in this way, it only contains relevant images
-    if remove_non_seg:
-        oDF = pd.read_csv(TRAIN_CSV).dropna(axis=0)
-    else:
-        oDF = pd.read_csv(TRAIN_CSV)
+    # Load the main dataframe from csv file
+    oDF = pd.read_csv(TRAIN_CSV)
     oIDS = oDF["id"].to_numpy()
+    mask = (~oDF["segmentation"].isna()).astype(int)
+    oDF['classification'] = mask
     
-    # Main script execution: for each folder, split the data into training and test sets, and create/write image-mask pairs.
+    # Main script execution: for each folder, split the data into training and validation sets, and create/write image-mask pairs.
     if dimension != '2.5d':
         if dimension != '2d':
             print("The dimension is different to the specified ones. Using 2d by default")
         for folder in CASE_FOLDERS:
             files, ids = get_folder_files(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS)
             if folder[4:] in test_patients:
-                create_and_write_img_msk(files, ids, ROOT_TEST_IMG_DIR, ROOT_TEST_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
+                create_and_write_img(files, ids, ROOT_TEST_DIR_0, ROOT_TEST_DIR_1, main_df=oDF, desc=f"Test :: {folder}")
             else:
-                create_and_write_img_msk(files, ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
+                create_and_write_img(files, ids, ROOT_TRAIN_DIR_0, ROOT_TRAIN_DIR_1, main_df=oDF, desc=f"Train :: {folder}")
     else:
         for folder in CASE_FOLDERS:
             files, ids = get_folder_files_2p5d(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS, stride=stride)
             if folder[4:] in test_patients:
-                create_and_write_img_msk_2p5d(files, ids, ROOT_TEST_IMG_DIR, ROOT_TEST_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
+                create_and_write_img_2p5d(files, ids, ROOT_TEST_DIR_0, ROOT_TEST_DIR_1, main_df=oDF, desc=f"Test :: {folder}")
             else:
-                create_and_write_img_msk_2p5d(files, ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
+                create_and_write_img_2p5d(files, ids, ROOT_TRAIN_DIR_0, ROOT_TRAIN_DIR_1, main_df=oDF, desc=f"Train :: {folder}")
+
 
 if __name__ == "__main__":
 
@@ -350,13 +273,11 @@ if __name__ == "__main__":
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
     parser.add_argument("-test_patients", type=str, default=TEST_PAT, help=f"Specify the list of test images (default \"{TEST_PAT}\")")
-    parser.add_argument("-remove_non_seg", type=int, default=1, help="Remove pictures that are not segmented (default 1)")
-    parser.add_argument("-mask_rgb", type=int, default=0, help="Generate masks also in RGB format (default 0)")
     
     args = parser.parse_args()
 
-    # Convert test_patients argument to a list
-    args.test_patients = ast.literal_eval(args.test_patients)
+    # Convert valid_patients argument to a list
+    args.valid_patients = ast.literal_eval(args.test_patients)
 
     # Check if no arguments are provided, then print help
     #if not any(vars(args).values()):
@@ -364,4 +285,4 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         # Call the main function with the parsed arguments
-        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.test_patients, args.remove_non_seg, args.mask_rgb)
+        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.test_patients)
