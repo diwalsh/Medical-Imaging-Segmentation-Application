@@ -269,7 +269,7 @@ if __name__ == "__main__":
     # Define input parameters
     parser.add_argument("-dimension", choices=['2d', '2.5d'], default='2d', help="Choose either '2d' or '2.5d'")
     parser.add_argument("-stride", type=int, default=1, help="Specify the stride as an integer (default 1) for 2.5d")
-    parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data (default 'data/train.csv'")
+    parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data (default 'data/train.csv)'")
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
     parser.add_argument("-test_patients", type=str, default=TEST_PAT, help=f"Specify the list of test images (default \"{TEST_PAT}\")")
