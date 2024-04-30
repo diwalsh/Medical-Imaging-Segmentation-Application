@@ -27,8 +27,4 @@ Our web application is built using Flask and integrates various technologies inc
 The 3D models are created using advanced rendering techniques and are compatible with Meta’s VR platforms. This allows for an interactive exploration of medical imagery in a virtual reality setting, providing a unique educational and diagnostic tool that can be accessed worldwide.
 
 ## References
-Our project references a variety of sources for both the data and the methodologies used. Detailed citations and acknowledgments are provided for all resources utilized during the project.
-
----
-
-Feel free to further customize this template to better reflect your project's specific details and achievements!
+Ref
