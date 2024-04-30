@@ -1,0 +1,24 @@
+keras==3.2.1
+tensorflow==2.16.1  # Or use tensorflow-intel if specifically needed for Intel optimizations
+# tensorflow-intel==2.16.1  # Uncomment if needed instead of standard tensorflow
+tensorflow-io-gcs-filesystem==0.31.0
+flask==3.0.3
+flask_session==0.8.0
+werkzeug==3.0.2
+sqlalchemy==2.0.29
+cs50==9.3.4
+opencv-python==4.9.0.80
+numpy==1.26.4
+torch==2.3.0
+pytorch-lightning==2.2.2
+torchvision==0.18.0
+transformers==4.40.0
+imageio==2.34.1
+scikit-image==0.23.2
+scipy==1.13.00
+pillow==10.3.0
+matplotlib==3.8.4
+torchinfo==1.8.0
+albumentations==1.4.4
+lightning==2.2.3
+torchmetrics==1.3.2
