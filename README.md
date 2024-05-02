@@ -1,3 +1,4 @@
+![Project Image](images/README.webp)
 # From 2D Medical Image Segmentation to 3D Model: From AI to VR
 
 ## About Us - Dast data team
