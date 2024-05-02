@@ -17,7 +17,7 @@ Our approach involved several key steps, starting from data sourcing to deployin
 - **Step 6:** 3D Modeling and VR Integration - converting segmented images into 3D models and embedding them in a VR environment to enable immersive visualization.
 
 ## Models
-- **Model A (Classification):** This model categorizes CT scans into two groups, identifying whether they contain any of the organs of interest.
+- **Model A (Classification):** This model categorizes MRI images into two groups, identifying whether they contain any of the organs of interest.
 - **Model B (Segmentation):** Following classification, this model segments the images, pinpointing the exact locations of the organs within the scans.
 
 ## Web Application
@@ -25,6 +25,17 @@ Our web application is built using Flask and integrates various technologies inc
 
 ## 3D Model and VR Integration
 The 3D models are created using advanced rendering techniques and are compatible with Meta’s VR platforms. This allows for an interactive exploration of medical imagery in a virtual reality setting, providing a unique educational and diagnostic tool that can be accessed worldwide.
+
+## Notebooks
+
+### 3D_model.ipynb
+### model_evaluation.ipynb
+### prepare_data_classification.ipynb
+### prepare_data_classification.py
+### added script to prepare data for the binary classification model
+### prepare_data_segmentation.ipynb
+### prepare_data_segmentation.py
+### Segformer_medical_lightning.ipynb
 
 ## References
 Ref
