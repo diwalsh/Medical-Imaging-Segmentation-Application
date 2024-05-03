@@ -30,13 +30,13 @@ The 3D models are created using advanced rendering techniques and are compatible
 ## Notebooks
 
 #### [3D_model](notebooks/3D_model.ipynb)
-#### model_evaluation.ipynb
-#### prepare_data_classification.ipynb
-#### prepare_data_classification.py
-#### added script to prepare data for the binary classification model
-#### prepare_data_segmentation.ipynb
-#### prepare_data_segmentation.py
-#### Segformer_medical_lightning.ipynb
+#### [](model_evaluation.ipynb)
+#### [](prepare_data_classification.ipynb)
+##### [](prepare_data_classification.py)
+#### [](added script to prepare data for the binary classification model
+#### [](prepare_data_segmentation.ipynb
+#### [](prepare_data_segmentation.py
+#### [](Segformer_medical_lightning.ipynb
 
 ## References
 
