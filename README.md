@@ -39,4 +39,7 @@ The 3D models are created using advanced rendering techniques and are compatible
 ### Segformer_medical_lightning.ipynb
 
 ## References
-Ref
+
+[UW-Madison GI Tract Image Segmentation](https://www.kaggle.com/competitions/uw-madison-gi-tract-image-segmentation/)  
+
+[Learn OpenCV](https://learnopencv.com/medical-image-segmentation/)  
