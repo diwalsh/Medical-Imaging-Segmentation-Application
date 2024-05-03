@@ -27,6 +27,8 @@ Our web application is built using Flask and integrates various technologies inc
 ## 3D Model and VR Integration
 The 3D models are created using advanced rendering techniques and are compatible with Meta’s VR platforms. This allows for an interactive exploration of medical imagery in a virtual reality setting, providing a unique educational and diagnostic tool that can be accessed worldwide.
 
+## Used Deep Learning Platforms
+
 ## Notebooks
 
 #### [3D_model](notebooks/3D_model.ipynb)
