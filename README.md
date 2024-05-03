@@ -1,7 +1,7 @@
 ![Project Image](images/README.webp)
 # From 2D Medical Image Segmentation to 3D Model: From AI to VR
 
-## About Us - Dast data team
+## About Us - DAST DATA team
 We are four data science students from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among Tina Mangum, [Ali Rahjouei](https://github.com/arahjou), [Sergio Sanz](https://github.com/sergio-sanz-rodriguez), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
 
 ## Introduction
@@ -29,14 +29,14 @@ The 3D models are created using advanced rendering techniques and are compatible
 
 ## Notebooks
 
-### 3D_model.ipynb
-### model_evaluation.ipynb
-### prepare_data_classification.ipynb
-### prepare_data_classification.py
-### added script to prepare data for the binary classification model
-### prepare_data_segmentation.ipynb
-### prepare_data_segmentation.py
-### Segformer_medical_lightning.ipynb
+#### [3D_model](notebooks/3D_model.ipynb)
+#### model_evaluation.ipynb
+#### prepare_data_classification.ipynb
+#### prepare_data_classification.py
+#### added script to prepare data for the binary classification model
+#### prepare_data_segmentation.ipynb
+#### prepare_data_segmentation.py
+#### Segformer_medical_lightning.ipynb
 
 ## References
 
