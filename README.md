@@ -1,8 +1,8 @@
 ![Project Image](images/README.webp)
 # From 2D Medical Image Segmentation to 3D Model: From AI to VR
-# Headline
+
 ## About Us - DAST DATA team
-We are four data science students from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among Tina Mangum, [Ali Rahjouei](https://github.com/arahjou), [Sergio Sanz](https://github.com/sergio-sanz-rodriguez), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
+We are four data science students from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among [Tina Mangum](https://github.com/tinamangum), [Ali Rahjouei](https://github.com/arahjou), [Sergio Sanz](https://github.com/sergio-sanz-rodriguez), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
 
 ## Introduction
 In this project, we aim to develop a comprehensive pipeline that uses state-of-the-art machine learning methods, including Convolutional Neural Networks (CNNs) and Transformers, combined with 3D modeling techniques. Our system segments and visualizes CT scan images and is packaged into a user-friendly web-based application. Additionally, we integrate the segmentation results into a virtual reality environment, enhancing the interactive experience for medical professionals. This solution is designed not only to aid in automatic segmentation of medical imagery but also to serve as an innovative educational tool in medical training.
