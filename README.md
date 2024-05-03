@@ -1,6 +1,6 @@
 ![Project Image](images/README.webp)
 # From 2D Medical Image Segmentation to 3D Model: From AI to VR
-
+# Headline
 ## About Us - DAST DATA team
 We are four data science students from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among Tina Mangum, [Ali Rahjouei](https://github.com/arahjou), [Sergio Sanz](https://github.com/sergio-sanz-rodriguez), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
 
