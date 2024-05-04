@@ -26,7 +26,6 @@ Our approach involved several key steps, starting from data sourcing to deployin
 <br>  
 The summary table below shows, for each model, the type of problem it solves, the deep learning technology used, and the libraries employed.
 
-<br>
 | Model   | Type                      | Technology                | Libraries          |
 | --------| ------------------------- | --------------------------|--------------------|
 | A       | Binary classification     | CNN (RestNet50V2)         | TensorFlow, Keras  |
