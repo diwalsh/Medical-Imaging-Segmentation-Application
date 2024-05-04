@@ -21,10 +21,16 @@ Our approach involved several key steps, starting from data sourcing to deployin
 ### 4.1. Overview
 - **Model A (Classification):** This CNN-based model categorizes MRI images into two groups, identifying whether they contain any of the organs of interest. The model is based on an already pre-trained ResNet50V2 architecture.
 - **Model B (Segmentation):** After classification, this model segments the images, pinpointing the exact locations of the organs within the scans. The segmentation model utilizes Transformer technology.
+
 <br>  
+
 <img src="images/model_workflow.png" width="1000">
+
 <br>  
+
 The summary table below shows, for each model, the type of problem it solves, the deep learning technology used, and the libraries employed.
+
+<br>  
 
 | Model   | Type                      | Technology                | Libraries          |
 | --------| ------------------------- | --------------------------|--------------------|
