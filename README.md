@@ -25,11 +25,12 @@ Our approach involved several key steps, starting from data sourcing to deployin
 <img src="images/model_workflow.png" width="1000">
 <br>  
 The summary table below shows, for each model, the type of problem it solves, the deep learning technology used, and the libraries employed.
+<br>
 
-| Model          | Type     | Technology       | Libraries |
-| -------------- | -------------- | -------------- |-----------
-| A   | Binary classification   | CNN (RestNet50V2)   | TensorFlow, Keras
-| B   | Three-class segmentation   | Transformers (SegFormer)  | Pytorch, Lightning |
+| Model   | Type                      | Technology                | Libraries          |
+| --------| ------------------------- | --------------------------|--------------------|
+| A       | Binary classification     | CNN (RestNet50V2)         | TensorFlow, Keras  |
+| B       | Three-class segmentation  | Transformers (SegFormer)  | Pytorch, Lightning |
 
 ### 4.2. Notebooks and Python Files
 
