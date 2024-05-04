@@ -22,6 +22,8 @@ Our approach involved several key steps, starting from data sourcing to deployin
 - **Model A (Classification):** This CNN-based model categorizes MRI images into two groups, identifying whether they contain any of the organs of interest. The model is based on an already pre-trained ResNet50V2 architecture.
 - **Model B (Segmentation):** After classification, this model segments the images, pinpointing the exact locations of the organs within the scans. The segmentation model utilizes Transformer technology.
 
+<img src="images/model_workflow.png" width="1000">
+
 The summary table below shows, for each model, the type of problem it solves, the deep learning technology used, and the libraries employed.
 
 | Model          | Type     | Technology       | Libraries |
@@ -43,13 +45,10 @@ The summary table below shows, for each model, the type of problem it solves, th
 ### 5.1 Overview
 Our web application is built using Flask and integrates various technologies including JavaScript and Python. It acts as the interface where users can upload CT scans and view both the 2D segmentation results and the 3D visualizations.
 
-<img src="images/model_workflow.png" width="1000">
-
 ### 5.1 Python files
 
 ## 6. 3D Model and VR Integration
 ### 6.1 Overview 
->>>>>>> ed0ec0296b74096772106c255f82fb2a9fca713b
 The 3D models are created using advanced rendering techniques and are compatible with Meta’s VR platforms. This allows for an interactive exploration of medical imagery in a virtual reality setting, providing a unique educational and diagnostic tool that can be accessed worldwide.
 
 ### 6.2 Notebooks
