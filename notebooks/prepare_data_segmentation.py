@@ -349,7 +349,7 @@ if __name__ == "__main__":
     parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data (default 'data/train.csv'")
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
-    parser.add_argument("-valid_patients", type=str, default=VALID_PAT, help=f"Specify the list of valid images for inference (default \"{VALID_PAT}\")")
+    parser.add_argument("-valid_patients", type=str, default=VALID_PAT, help=f"Specify the list of validation images for inference (default \"{VALID_PAT}\")")
     parser.add_argument("-remove_non_seg", type=int, default=1, help="Remove pictures that are not segmented (default 1)")
     parser.add_argument("-mask_rgb", type=int, default=0, help="Generate masks also in RGB format (default 0)")
     
