@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
  
-TEST_PAT = "['2', '6', '7', '9', '11', '15', '16', '140', '145', '146', '147', '148', '149', '154', '156']"
+VALID_PAT = "['2', '6', '7', '9', '11', '15', '16', '140', '145', '146', '147', '148', '149', '154', '156']"
 
 # Define regular expressions to extract case, date, slice number, and image shape from file paths
 GET_CASE_AND_DATE = re.compile(r"case[0-9]{1,3}_day[0-9]{1,3}")
@@ -278,7 +278,7 @@ def create_and_write_img_msk_2p5d(file_paths, file_ids, save_img_dir, save_msk_d
 
 import argparse
 
-def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_non_seg, mask_rgb):
+def main(dimension, stride, csv, input_dir, output_dir, valid_patients, remove_non_seg, mask_rgb):
     
     # Process input parameters
     print("Dimension:", dimension)
@@ -286,7 +286,7 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_no
     print("CSV:", csv)
     print("Input Dir:", input_dir)
     print("Output Dir:", output_dir)
-    print("Test Patients:", test_patients)
+    print("Valid Patients:", valid_patients)
     print("Remove Non-Segmented Images:", remove_non_seg)
     print("Mask RGB:", mask_rgb) 
     
@@ -299,18 +299,18 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_no
     ORIG_IMG_DIR = input_dir
     CASE_FOLDERS = os.listdir(ORIG_IMG_DIR)
 
-    # Define paths for training and test image and mask directories
+    # Define paths for training and validation image and mask directories
     ROOT_DATASET_DIR = output_dir #+ '_dim' + dimension + '_stride' + str(stride)
     ROOT_TRAIN_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "train", "images")
     ROOT_TRAIN_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "train", "masks")
-    ROOT_TEST_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "test", "images")
-    ROOT_TEST_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "test", "masks")
+    ROOT_VALID_IMG_DIR = os.path.join(ROOT_DATASET_DIR, "valid", "images")
+    ROOT_VALID_MSK_DIR = os.path.join(ROOT_DATASET_DIR, "valid", "masks")
  
     # Create directories if not already present
     os.makedirs(ROOT_TRAIN_IMG_DIR, exist_ok=True)
     os.makedirs(ROOT_TRAIN_MSK_DIR, exist_ok=True)
-    os.makedirs(ROOT_TEST_IMG_DIR, exist_ok=True)
-    os.makedirs(ROOT_TEST_MSK_DIR, exist_ok=True)
+    os.makedirs(ROOT_VALID_IMG_DIR, exist_ok=True)
+    os.makedirs(ROOT_VALID_MSK_DIR, exist_ok=True)
 
     # Load the main dataframe from csv file and drop rows with null values, in this way, it only contains relevant images
     if remove_non_seg:
@@ -319,21 +319,21 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients, remove_no
         oDF = pd.read_csv(TRAIN_CSV)
     oIDS = oDF["id"].to_numpy()
     
-    # Main script execution: for each folder, split the data into training and test sets, and create/write image-mask pairs.
+    # Main script execution: for each folder, split the data into training and validation sets, and create/write image-mask pairs.
     if dimension != '2.5d':
         if dimension != '2d':
             print("The dimension is different to the specified ones. Using 2d by default")
         for folder in CASE_FOLDERS:
             files, ids = get_folder_files(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS)
-            if folder[4:] in test_patients:
-                create_and_write_img_msk(files, ids, ROOT_TEST_IMG_DIR, ROOT_TEST_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
+            if folder[4:] in valid_patients:
+                create_and_write_img_msk(files, ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
             else:
                 create_and_write_img_msk(files, ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
     else:
         for folder in CASE_FOLDERS:
             files, ids = get_folder_files_2p5d(folder_path=os.path.join(ORIG_IMG_DIR, folder), only_IDS=oIDS, stride=stride)
-            if folder[4:] in test_patients:
-                create_and_write_img_msk_2p5d(files, ids, ROOT_TEST_IMG_DIR, ROOT_TEST_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
+            if folder[4:] in valid_patients:
+                create_and_write_img_msk_2p5d(files, ids, ROOT_VALID_IMG_DIR, ROOT_VALID_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Valid :: {folder}")
             else:
                 create_and_write_img_msk_2p5d(files, ids, ROOT_TRAIN_IMG_DIR, ROOT_TRAIN_MSK_DIR, main_df=oDF, mask_rgb=mask_rgb, desc=f"Train :: {folder}")
 
@@ -349,14 +349,14 @@ if __name__ == "__main__":
     parser.add_argument("-csv", type=str, default='data/train.csv', help="Path and file name of the csv file with rle data (default 'data/train.csv'")
     parser.add_argument("-input_dir", type=str, default='images', help="Specify the directory where the input images reside (default 'images')")
     parser.add_argument("-output_dir", type=str, default='output', help="Specify the directory where the images will be stored (default 'output')")
-    parser.add_argument("-test_patients", type=str, default=TEST_PAT, help=f"Specify the list of test images (default \"{TEST_PAT}\")")
+    parser.add_argument("-valid_patients", type=str, default=VALID_PAT, help=f"Specify the list of valid images for inference (default \"{VALID_PAT}\")")
     parser.add_argument("-remove_non_seg", type=int, default=1, help="Remove pictures that are not segmented (default 1)")
     parser.add_argument("-mask_rgb", type=int, default=0, help="Generate masks also in RGB format (default 0)")
     
     args = parser.parse_args()
 
-    # Convert test_patients argument to a list
-    args.test_patients = ast.literal_eval(args.test_patients)
+    # Convert valid_patients argument to a list
+    args.valid_patients = ast.literal_eval(args.valid_patients)
 
     # Check if no arguments are provided, then print help
     #if not any(vars(args).values()):
@@ -364,4 +364,4 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         # Call the main function with the parsed arguments
-        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.test_patients, args.remove_non_seg, args.mask_rgb)
+        main(args.dimension, args.stride, args.csv, args.input_dir, args.output_dir, args.valid_patients, args.remove_non_seg, args.mask_rgb)
