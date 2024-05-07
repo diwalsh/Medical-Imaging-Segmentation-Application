@@ -42,7 +42,7 @@ The summary table below shows, for each model, the type of problem it solves, th
 #### 1. [cnn_classification_resnet](notebooks/cnn_classification_resnet.ipynb)
 #### 1a. [prepare_data_classification](notebooks/prepare_data_classification.ipynb)
 #### 1b. [prepare_data_classification](notebooks/prepare_data_classification.py)
-#### 2. [Segformer_medical_lightning](notebooks/Segformer_medical_lightning.ipynb)
+#### 2. [segformer_medical_lightning](notebooks/segformer_medical_lightning.ipynb)
 #### 2a. [prepare_data_segmentation](notebooks/prepare_data_segmentation.ipynb)
 #### 2b. [prepare_data_segmentation](notebooks/prepare_data_segmentation.py)
 #### 3. [model_evaluation](notebooks/model_evaluation.ipynb)
