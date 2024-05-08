@@ -9,6 +9,8 @@ __pycache__/
 *.keras
 *.png
 *.db
+*.mtl
+*.obj
 
 # Distribution / packaging
 .Python
