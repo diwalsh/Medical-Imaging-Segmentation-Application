@@ -17,3 +17,4 @@ tensorflow==2.16.1
 keras==3.3.3
 albumentations==1.4.4
 lightning==2.2.4
+cloud-tpu-client==0.10
