@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    image previews
+{% endblock %}
+
+{% block main %}
+    <h1>image previews</h1>
+    {% if files %}
+    <div id="loading-container" class="loading-container">
+        <div class="d-flex justify-content-center align-items-center vh-100">
+            <img src="{{ url_for('static', filename='gifs/spin2.gif') }}" alt="segmenting...">
+        </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="height: 20vh; margin-top: 1rem;">
+        <p>be sure to look over the below scans, to ensure the correct files were uploaded before continuing.<br><br>
+            <a href="#" id="confirm-link" class="body-link">i confirm the files are correct</a></br>
+        </br>
+            <a href="/upload" class="body-link">i want to upload different files</a>
+        </p>
+        </div>
+        <div class="card-container d-flex justify-content-center align-items-center" style="margin: 6%;">
+            {% for img_data, formatted_name, img_name in files %}
+                <div class="card">
+                    <img src="data:image/png;base64,{{ img_data }}" alt="{{ img_name }}">
+                    <div class="card-content">
+                        <strong>{{ formatted_name }}</strong>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="margin-bottom: 4rem;">
+        <p>
+            <a href="#" class="body-link">back to top</a>
+        </p>
+    </div>
+    {% else %}
+        <div class="d-flex justify-content-center align-items-center vh-100" style="margin-top: -8rem;">
+            <p>no .png scans uploaded yet!<br>
+            <a href="/upload" class="body-link">ready to upload?</a></p>
+        </div>
+    {% endif %}
+    <script>
+        $(document).ready(function() {
+            $('#confirm-link').click(function(e) {
+                e.preventDefault(); // Prevent the default link behavior
+                $('#loading-container').css('display', 'block'); // Show the loading icon
+    
+                $.ajax({
+                    url: '/model', // Adjust as necessary for your URL endpoint
+                    type: 'GET', // or 'POST' if required
+                    success: function(response) {
+                        // Replace the current page content with the new response
+                        document.open();
+                        document.write(response);
+                        document.close();
+                    },
+                    error: function() {
+                        alert('Error processing request.');
+                        $('#loading-container').css('display', 'none'); // Hide the loading icon if there's an error
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}

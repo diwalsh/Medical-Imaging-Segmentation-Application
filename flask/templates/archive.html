@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    archive
+{% endblock %}
+
+{% block main %}
+    <h1>organsizer archive</h1>
+    {% if renderings %}
+        <div class="card-container d-flex justify-content-center align-items-center" style="margin: 6%;">
+            {% for model in renderings %}
+                <div class="card">
+                    <a href="{{ url_for('view_render', rendering_id=model.id) }}">
+                        <img src="{{ model.cover_image }}" alt="Illustration">
+                        <div class="card-content">
+                            <strong>{{ model.case_name }}</strong>
+                            <p class="content">Segmented on <br> {{ model.created_at }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="d-flex justify-content-center align-items-center vh-100" style="margin-top: -8rem;">
+            <p>no renderings in the archive yet!</br></br>
+            <a href="/upload" class="body-link">ready for the first segmentation session?</a></p>
+        </div>
+    {% endif %}
+
+{% endblock %}

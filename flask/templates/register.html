@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    register
+{% endblock %}
+
+{% block main %}
+    <div class="d-flex justify-content-center align-items-center vh-100" style="margin-top: -3rem;">
+        <div class="text-center">
+            <form action="/register" method="post">
+                <div class="mb-3">
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="email" type="text">
+                </div>
+                <div class="mb-3">
+                    <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="password" type="password">
+                </div>
+                <div class="mb-3">
+                    <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="password confirmation" type="password">
+                </div>
+                <button class="submit-button" type="submit">Register</button>
+            </form>
+            <br/>
+            <a href="/login" class="body-link">already registered?</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    upload
+{% endblock %}
+
+{% block main %}
+    <h1>zip file upload</h1>
+    <p class='upload-p'><br>
+        Please upload a zip folder of .png files from the CT scan. </br></br>
+        Be sure to have files labeled as: <b>case<i>#</i>_day<i>#</i>_slice<i>00#</i>.png</b> !!<br>
+        <br><small>
+            <i>case number</i> : patient number/case number<br>
+            <i>day number</i> : day number within patient's treatment sequence<br>
+            <i>slice number</i> : 0 padded number of slice from that scan
+        </br>
+        [Anything between slice<i>#</i>_ and .png will be ignored.]</small>
+    </br></br>
+        example: <b>case12_day6_slice0042.png</b>
+    </br></br>
+    </p>
+    <div class="d-flex justify-content-center align-items-center vh-100" style="margin-top: -20rem;">
+        <div class="text-center">
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="file" accept="application/zip" name="data_zip_file" accept="application/zip" required>
+                </div>
+                <div class="mb-3">
+                    <button class="submit-button" type="submit">Send zip file!</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

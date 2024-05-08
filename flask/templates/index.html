@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    home
+{% endblock %}
+
+{% block main %}
+    <div class="d-flex justify-content-center align-items-center vh-100 flex-column" style="margin-top: -10%;">
+        <form action="/upload" method="get">
+            <button type="submit" class="btn btn-outline-primary custom-button">begin segmenting</button>
+        </form>
+        <div style="margin-top: 2rem;"></div> <!-- Adjust margin top to create space -->
+        <form action="/archive" method="get">
+            <button type="submit" class="btn btn-outline-primary custom-button">visit archive</button>
+        </form>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    model time ;]
+{% endblock %}
+
+{% block main %}
+    <h1>predictions</h1>
+    {% if predictions %}
+    <div class="d-flex justify-content-center align-items-center" style="height: 20vh; margin-top: 1rem;">
+        <p>be sure to look over the below segmented images, to ensure the correct masks were uploaded before continuing.<br><br>
+            <a href="/render" class="body-link">i confirm the masks are correct</a></br>        
+        </br>
+            <a href="/upload" class="body-link">i want to segment different files</a>
+        </p>
+        </div>
+        <div class="card-container d-flex justify-content-center align-items-center" style="margin: 6%;">
+            {% for img_path, formatted_name, img_name in predictions %}
+                <div class="card">
+                    <img src="{{ img_path }}" alt="{{ img_name }}">
+                    <div class="card-content">
+                        <strong>{{ formatted_name }}</strong>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="margin-bottom: 4rem;">
+        <p>
+            <a href="#" class="body-link">back to top</a>
+        </p>
+    </div>
+    {% else %}
+        <div class="d-flex justify-content-center align-items-center vh-100" style="margin-top: -8rem;">
+            <p>no predictions yet!<br>
+            <a href="/upload" class="body-link">ready to upload?</a></p>
+        </div>
+    {% endif %}
+
+{% endblock %}
