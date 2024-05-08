@@ -3,31 +3,15 @@ import zipfile
 import base64
 import cv2
 import tempfile
-import torch
-import re
-import time
 import json
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from cs50 import SQL
-from helpers import apology, login_required, normalize, resize, get_patient_images, generate_bouncing_gif
+from helpers import apology, login_required, normalize, get_patient_images
 from model_v2 import predict
 from threed import load_images_from_folder, threed_render
-import logging
-
-# # Set the logging level to WARNING to suppress debug and info messages
-# logging.basicConfig(level=logging.WARNING)
-# # Set the logging level for the Hugging Face Transformers library to WARNING
-# transformers_logger = logging.getLogger("transformers")
-# transformers_logger.setLevel(logging.WARNING)
-# # Set the logging level for the Werkzeug server to WARNING
-# werkzeug_logger = logging.getLogger("werkzeug")
-# werkzeug_logger.setLevel(logging.WARNING)
-# # Suppress debug messages from Matplotlib and TensorFlow
-# logging.getLogger('matplotlib').setLevel(logging.WARNING)
-# logging.getLogger('tensorflow').setLevel(logging.WARNING)
 
 
 # configure app
@@ -42,15 +26,15 @@ Session(app)
 # (handles messy sqlachemy connection openings/closures for you)
 db = SQL("sqlite:///dats.db")
 
-# Directory to save the generated renderings, etc. 
-# this will be fleshed out later 
+# directory to save the generated renderings, etc.
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # ensure the upload folder exists!! lol
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
+    
+# earthy pink colors for organs
 organ_colors = [[249, 187, 191], 
                 [254, 128, 162],
                 [183, 82, 100]] 
@@ -64,15 +48,24 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+
+# ROUTES !!
+
+
+# index route -- landing page/home
 @app.route("/")
 @login_required
 def index():
     return render_template("index.html")
 
+
+# about me page
 @app.route("/about")
 def about():
     return render_template("about.html")
 
+
+# upload page on get, normalized png page on post
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
@@ -132,10 +125,11 @@ def upload():
     else:
         return render_template("upload.html")
 
+
+# model prediction route -- lands on showing overlaid images
 @app.route("/model")
 @login_required
 def model():
-    start = time.perf_counter()
     # retrieve image paths from session, declare device, checkpoint and model
     image_paths = session.get('image_paths', [])
     # predict!!
@@ -173,14 +167,11 @@ def model():
 
     images = load_images_from_folder(image_folder, prefix)
     threed_render(images, combined_filename, organ_colors)
-    
-    end = time.perf_counter()
-    time_sum = (end - start)
-    minutes, seconds = divmod(time_sum, 60)
-    print(f"Time elapsed: {int(minutes)} minutes and {seconds:.2f} seconds")
 
     return render_template("model.html", predictions=predictions, image_paths=image_paths)
 
+
+# route for displaying overlaid image carousel and 3D model 
 @app.route("/render")
 @login_required
 def render():
@@ -215,11 +206,12 @@ def render():
     
     return render_template("render2.html", image_paths=image_paths, obj_path=obj_path, title=title, generate_title_slice=generate_title_slice)
 
+
+# user archive route
 @app.route("/archive")
 @login_required
 def archive():
     user_id = session["user_id"]
-    # renderings = db.execute("SELECT * FROM renderings WHERE user_id = ? ORDER BY created_at DESC", user_id)
     renderings = db.execute("""
         SELECT r.*
         FROM renderings r
@@ -235,6 +227,8 @@ def archive():
 
     return render_template("archive.html", renderings=renderings)
 
+
+# displaying user archive in render format (overlaid image carousel and 3D model)
 @app.route("/<int:rendering_id>")
 @login_required
 def view_render(rendering_id):
@@ -256,7 +250,7 @@ def view_render(rendering_id):
     return render_template("render2.html", image_paths=image_paths, obj_path=model[0]['obj_path'], title=model[0]['case_name'], generate_title_slice=generate_title_slice)
 
 
-
+# login route
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
@@ -270,21 +264,18 @@ def login():
         # Ensure username was submitted
         if not request.form.get("username"):
             return apology("must provide username", 403)
-
         # Ensure password was submitted
         elif not request.form.get("password"):
             return apology("must provide password", 403)
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
-
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
-
         # Redirect user to home page
         return redirect("/")
 
@@ -293,17 +284,18 @@ def login():
         return render_template("login.html")
 
 
+# logout route
 @app.route("/logout")
 def logout():
     """Log user out"""
 
     # Forget any user_id
     session.clear()
-
     # Redirect user to login form
     return redirect("/")
 
 
+# registration route
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
@@ -317,15 +309,12 @@ def register():
         # Ensure username was submitted
         if not request.form.get("username"):
             return apology("must create username", 400)
-
         # Ensure password was submitted
         elif not request.form.get("password"):
             return apology("must create password", 400)
-
         # Ensure password confirmation was submitted
         elif not request.form.get("confirmation"):
             return apology("must repeat password", 400)
-
         # Ensure passwords match!
         elif request.form.get("password") != request.form.get("confirmation"):
             return apology("passwords must match!", 400)
@@ -345,7 +334,6 @@ def register():
         # Remember which user has logged in
         rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
         session["user_id"] = rows[0]["id"]
-
         # Redirect user to home page
         return redirect("/")
 
@@ -354,8 +342,6 @@ def register():
         return render_template("register.html")
     
     
-    
 if __name__ == "__main__":
     app.run(debug=True)
-
 
