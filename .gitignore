@@ -5,12 +5,6 @@ __pycache__/
 
 # C extensions
 *.so
-*.ckpt
-*.keras
-*.png
-*.db
-*.mtl
-*.obj
 
 # Distribution / packaging
 .Python
@@ -142,3 +136,12 @@ models/*
 
 #config file has sensitive data
 .mlflow_uri
+
+# stuff specific to our Flask Applicaton: 
+*.ckpt
+*.keras
+*.png
+*.db
+*.mtl
+*.obj
+flask-session/
