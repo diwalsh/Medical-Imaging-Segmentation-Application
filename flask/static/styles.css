@@ -1,0 +1,457 @@
+@font-face {
+    font-family: 'disco-chrome';
+    src: url('DiscoDeckChrome.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+@font-face {
+    font-family: 'avenir';
+    src: url('Avenir.ttc') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'metronauts';
+    src: url('spacejunkXL.ttf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+
+/* Update the primary color */
+:root {
+    --primary-color: #009688; /* Define your custom primary color variable */
+}
+
+/* Update navbar background color */
+.navbar-dark {
+    background-color: var(--primary-color) !important;
+}
+
+.mb-3 {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+input[type="file"] {
+    text-align: center;
+}
+
+body {
+    color: #555;
+    font-family: 'avenir', sans-serif;
+    font-weight: normal; /* Use the specific weight you want for the input fields */
+    font-size: 1.2em; /* Increase font size by 20% */
+}
+
+.text-center {
+    text-align: center;
+}
+
+
+/* Size for brand */
+nav .navbar-brand
+{
+    font-family: 'metronauts', 'avenir', sans-serif;
+    font-size: xx-large;
+}
+
+/* Links in the navbar */
+nav .navbar-nav a {
+    font-family: 'avenir', sans-serif;
+    font-weight: 900; /* 'black' is usually equivalent to font-weight: 900 */
+}
+
+.navbar-brand-centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Form in the login page */
+form {
+    font-family: 'avenir', sans-serif;
+    font-weight: normal; /* Use the specific weight you want for the form, e.g., 'normal', 'bold', etc. */
+}
+
+/* Input fields in the form */
+form input {
+    font-family: 'avenir', sans-serif;
+    font-weight: normal; /* Use the specific weight you want for the input fields */
+}
+
+/* Button in the form */
+form button {
+    font-family: 'avenir', sans-serif;
+    font-weight: 900!important; /* Use the specific weight you want for the button */
+}
+
+a.body-link {
+    font-family: 'avenir', sans-serif;
+    color: var(--primary-color);
+    font-weight: 900; /* 'black' is usually equivalent to font-weight: 900 */
+    text-decoration: none;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 10px 20px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.body-link:hover{
+    background-color: var(--primary-color); /* Blue background color */
+    color: #fff; /* Update text color to white */
+    border: 1px solid var(--primary-color); /* Update border color */
+}
+
+.upload-p {
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 10px 20px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
+    display: block; /* Ensure it behaves as a block element */
+}
+
+.custom-button {
+    font-family: 'metronauts', sans-serif;
+    font-weight: normal!important;
+    width: 50vw;      /* 50% of the viewport width */
+    height: 20vh;     /* 25% of the viewport height */
+    font-size: 5vw;  /* Adjust the font size as needed */
+    background-color: #fff; /* Darker blue background color on hover */
+    color: var(--primary-color); /* Update text color to your custom primary color */
+    border: 1px solid var(--primary-color); /* Update border color */
+}
+
+.custom-button:hover {
+    background-color: var(--primary-color); /* Blue background color */
+    color: #fff; /* Update text color to white */
+    border: 1px solid var(--primary-color); /* Update border color */
+}
+
+.download-button {
+    background-color: #fff; /* Darker blue background color on hover */
+    color: #009688;
+    border: 1px solid #009688;
+    border-radius: 5px;
+    padding: 10px 20px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.download-button:hover {
+    background-color: #009688; /* Blue background color */
+    color: #fff; 
+    border: 1px solid #009688;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button {
+    background-color: #009688; /* Blue background color */
+    color: #fff; 
+    border: 1px solid #009688;
+    border-radius: 5px;
+    padding: 10px 20px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button:hover {
+    background-color: #fff; /* Darker blue background color on hover */
+    color: #009688;
+    border: 1px solid #009688;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.emoji-link {
+    text-decoration: none;  /* Remove underline */
+    font-size: 6em;         /* Adjust the size as needed */
+    margin: 10px;           /* Add spacing between emojis */
+}
+
+.emoji-link-sick {
+    font-family: 'avenir', sans-serif;
+    color: #888;
+    text-decoration: none;  /* Remove underline */
+    font-size: 4em;
+    font-weight: 100!important;
+    margin: 20px;           /* Add spacing between emojis */
+}
+
+.emoji-header {
+    font-size: 3em;         /* Adjust the size as needed */
+    margin: 0px;           /* Add spacing between emojis */
+}
+
+.emoji-above-navbar {
+    text-decoration: none;
+    font-size: 3em;        /* Adjust the size as needed */
+    margin: 0;             /* Remove default margin */
+    position: fixed;    /* Position absolute to position it relative to the nearest positioned ancestor (in this case, the body) */
+    bottom: 4.5rem;             /* Adjust the top value to position it just above the navbar */
+    left: 50%;             /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally using transform */
+}
+
+.words-above-navbar {
+    font-size: .75em;        /* Adjust the size as needed */
+    margin: 0;             /* Remove default margin */
+    position: fixed;    /* Position absolute to position it relative to the nearest positioned ancestor (in this case, the body) */
+    bottom: 8.5rem;             /* Adjust the top value to position it just above the navbar */
+    left: 50%;             /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally using transform */
+}
+
+
+.emoji-label {
+    display: block;
+    text-align: center;
+    font-size: small; /* Adjust the font size as needed */
+    position: absolute;
+    bottom: -1.5em; /* Adjust the distance between the emoji and the label */
+    width: 100%;
+}
+
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+}
+
+.slice-container,
+.model-container {
+    flex: 1;
+    padding: 5px 50px;
+    box-sizing: border-box;
+}
+
+.slice-container {
+    width: 50%; /* Set width to 50% */
+}
+
+/* #model-container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 30px;
+    padding: 10px;
+    width: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+} */
+
+.card-canvas {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+    width: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.slice-container {
+    border-right: 1px solid #eee;  /* Add a border between story and image */
+}
+
+.slice-container p {
+    font-size: .85em;  /* Adjust the font size for paragraphs in the story-container */
+}
+
+h1 {
+    font-family: 'metronauts', 'avenir', sans-serif;
+    padding-bottom: 10px;
+    color: #009688; /* Bootstrap's primary blue */
+    /* font-size: 2em !important; */
+}
+h2 {
+    font-family: 'metronauts', 'avenir', sans-serif;
+    padding-bottom: 10px;
+    color: #009688; /* Bootstrap's primary blue */
+    /* font-size: 2em !important; */
+}
+#prender {
+    margin-bottom: 0;
+    margin-top: 1rem;
+    padding-bottom: 1rem;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+img {
+    max-width: 100%;  /* Make sure the image doesn't exceed its container */
+    height: auto;
+    display: block;
+    margin: 0 auto;  /* Center the image horizontally */
+}
+
+#carouselExampleIndicators {
+    height: 100% !important;
+}
+
+.carousel-inner {
+    height: 100% !important;
+}
+
+.carousel-item {
+    height: 100% !important;
+}
+
+.carousel-inner img {
+    object-fit: cover;
+}
+
+
+
+/* potentially useful styles.css below, but not there yet -- need to think about it but don't wanna get rid of it*/
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card-carousel{
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 10px;
+    padding: 10px;
+    width: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-carousel img {
+    width: 100% ! important;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.card img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+#canvas-container {
+    margin-bottom: 10px;
+}
+
+.card-content {
+    text-align: center;
+}
+
+.card a {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #009688;
+}
+
+.card-content {
+    position: relative;
+}
+
+.content-space {
+    height: 1.5em; /* Adjust the height as needed */
+}
+
+.card-content p.content {
+    color: black; /* Set the font color to black for the content paragraphs inside card-content */
+    font-size: smaller;
+}
+
+p.footer {
+    position: absolute;
+    bottom: 3%;
+    left: 0; /* Align to the left edge of the card */
+    right: 0; /* Align to the right edge of the card */
+    margin: 0!important; /* Remove any default margin */
+}
+
+/* Change carousel arrow color */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    color: #009688; /* Your blue color */
+}
+
+.color-sample {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+}
+
+.stomach { background-color: #F9BBBF; }
+.small-intestine { background-color: #FE80A2; }
+.large-intestine { background-color: #B75264; }
+
+/* .fstomach { color: #F9BBBF; }
+.fsmall-intestine { color: #FE80A2; }
+.flarge-intestine { color: #B75264; } */
+
+.fstomach { color: #222; }
+.fsmall-intestine { color: #222; }
+.flarge-intestine { color: #222; }
+
+/* this might be useful later on for loading the renderings, but not sure yet tbh  */
+
+.loading-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+ 
+.loading-container img {
+    max-height: 40vh; /* Adjust the percentage as needed */
+    max-width: 200%;
+    display: block;
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+/*
+.loading-spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-message {
+    margin-top: 10px;
+    font-size: 16px;
+} */
