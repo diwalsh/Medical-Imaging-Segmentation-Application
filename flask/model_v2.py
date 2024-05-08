@@ -279,7 +279,7 @@ def get_class_model(class_model_loc, class_model):
 # loading checkpoint and model -- maybe make this a function so it can live here? 
 def predict(image_paths):
     
-    CKPT_PATH = '/Users/dianawalsh/dats-data/static/ckpt_epoch50.ckpt'
+    CKPT_PATH = 'checkpoint.ckpt'
     model = MedicalSegmentationModel.load_from_checkpoint(CKPT_PATH)
             
     DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -287,7 +287,7 @@ def predict(image_paths):
     model.eval()
     
     # predictions classification
-    class_model = 'resnet50v2_nn256_lr0001_relu_batch64_epoch30_v4.keras'
+    class_model = 'classification_model.keras'
     class_model_loc = 'static/'
     class_model = get_class_model(class_model_loc, class_model)
 
