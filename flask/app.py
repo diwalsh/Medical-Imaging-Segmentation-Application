@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from cs50 import SQL
 from helpers import apology, login_required, normalize, get_patient_images
-from model_v2 import predict
+from model import predict
 from threed import load_images_from_folder, threed_render
 
 
