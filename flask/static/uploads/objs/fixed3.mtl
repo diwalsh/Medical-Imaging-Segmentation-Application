@@ -1,0 +1,25 @@
+newmtl Organ1
+Ka 1.0 0.55 0.55
+Kd 1.0 0.7 0.7
+Ks 1.0 0.7 0.7
+Ns 200
+illum 2
+Ni 1.0
+d 1.0
+newmtl Organ2
+Ka 1.0 0.4 0.4
+Kd 1.0 0.6 0.6
+Ks 1.0 0.6 0.6
+Ns 200
+illum 2
+Ni 1.0
+d 1.0
+newmtl Organ3
+Ka 1.0 0.2 0.2
+Kd 1.0 0.4 0.4
+Ks 1.0 0.4 0.4
+Ns 200
+illum 2
+Ni 1.0
+d 1.0
+mtllib fixed3.mtl
