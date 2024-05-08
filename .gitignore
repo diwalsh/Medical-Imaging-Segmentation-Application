@@ -144,4 +144,4 @@ models/*
 *.db
 *.mtl
 *.obj
-flask-session/
+flask_session/
