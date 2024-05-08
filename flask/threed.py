@@ -81,8 +81,7 @@ def extract_mesh_from_volumes(volumes):
         # translate vertices relative to the overall center
         verts -= overall_center
 
-        print(f"Extracted mesh for organ {i+1} (Vertices: {len(verts)}, Faces: {len(faces)})")
-
+        # append vertices, faces and color to their lists
         vertices_list.append(verts)
         faces_list.append(faces)
         colors_list.append([colors[i]] * len(verts))  # Assign color to vertices of the organ
@@ -105,9 +104,11 @@ def is_valid_mesh(vertices, faces):
 
 # step 5: save to .obj and .mtl files
 def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_colors_list):
+    # retrieve base-filename and append extension
     obj_filename = filename[:-4] + '.obj'
     mtl_filename = filename[:-4] + '.mtl'
 
+    # write .obj file
     with open(obj_filename, 'w') as f:
         vertex_offset = 1  # Start indexing vertices from 1
         for organ_idx, (vertices, faces) in enumerate(zip(organ_vertices_list, organ_faces_list), start=1):
@@ -126,7 +127,8 @@ def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_
                     continue
                 f.write(f'f {" ".join(map(str, face))}\n')
             vertex_offset += len(vertices)
-    
+            
+    # write .mtl file
     with open(mtl_filename, 'w') as f:
         for organ_idx, colors in enumerate(organ_colors_list, start=1):
             f.write(f'newmtl Organ{organ_idx}\n')
@@ -135,7 +137,6 @@ def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_
             f.write(f'Ks {colors[2][0]} {colors[2][1]} {colors[2][2]}\n')  # Specular color
             f.write(f'Ns 200\n')  # Higher specular exponent for increased reflectivity
             f.write(f'illum 2\n')  # Illumination model
-            # Add shadow-related parameters
             f.write(f'Ni 1.0\n')  # Optical density (index of refraction)
             f.write(f'd 1.0\n')    # Dissolve factor (opacity)
         
