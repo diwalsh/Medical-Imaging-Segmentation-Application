@@ -7,6 +7,7 @@ __pycache__/
 *.so
 *.ckpt
 *.keras
+*.png
 
 # Distribution / packaging
 .Python
