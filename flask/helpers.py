@@ -5,7 +5,7 @@ from flask import redirect, render_template, session
 from functools import wraps
 
 
-# function to display funny apology to user upon login/registration failure
+# display funny apology to user upon login/registration failure
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
@@ -36,7 +36,7 @@ def login_required(f):
     return decorated_function
 
 
-# Function to load and convert image from a uint16 to uint8 datatype.
+# load and convert image from a uint16 to uint8 datatype.
 def normalize(img_path):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED).astype(np.float32)
     # pefroms mix-max normalization on the image array.
@@ -46,25 +46,9 @@ def normalize(img_path):
     # checks if the image is grayscale and, if so, converts it to an RGB image by replicating the single-channel
     img = np.tile(img[..., None], [1, 1, 3])  # gray to rgb
     return img
-
-
-# Function to overlay a segmentation map on top of an RGB image.
-def image_overlay(image, segmented_image):
-    alpha = 1.0  # Transparency for the original image.
-    beta = 0.7  # Transparency for the segmentation map.
-    gamma = 0.0  # Scalar added to each sum.
-
-    segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_RGB2BGR)
-
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-    image = cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    return np.clip(image, 0.0, 1.0)
     
     
-# also Inside model.py
+# also inside model.py...
 def get_patient_images(case_prefix, day_prefix, folder_path, user_id):
     patient_images = []
     for filename in os.listdir(folder_path):
