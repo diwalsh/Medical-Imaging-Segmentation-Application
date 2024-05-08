@@ -1,13 +1,11 @@
 import cv2
 import os
 import numpy as np
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, session
 from functools import wraps
-import torch
-from transformers import SegformerForSemanticSegmentation
-import imageio
 
 
+# function to display funny apology to user upon login/registration failure
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
@@ -23,6 +21,7 @@ def apology(message, code=400):
     return render_template("apology.html", top=code, bottom=escape(message)), code
 
 
+# decorator initiation for login requirement (all pages aside from login/registration)
 def login_required(f):
     """
     Decorate routes to require login.
@@ -36,27 +35,18 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 # Function to load and convert image from a uint16 to uint8 datatype.
 def normalize(img_path):
-    # reads the image file specified in img_path.
-    # cv2.IMREAD_UNCHANGED indicates that the image is loades as-is
-    # The result is stored in img and then coverted to float32.
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED).astype(np.float32)
     # pefroms mix-max normalization on the image array.
-    # this normalization ensure that the pixel values are withing the range of 8-bit grayscale or RGB mages
     img = (img - img.min()) / (img.max() - img.min()) * 255.0
     # conversion to unit8 (8-bits)
     img = img.astype(np.uint8)
     # checks if the image is grayscale and, if so, converts it to an RGB image by replicating the single-channel
-    # (grayscale) image to three channels (R, G, B) using np.tile()
     img = np.tile(img[..., None], [1, 1, 3])  # gray to rgb
     return img
 
-def resize(img):
-    # here is where we can change image size prior to sending to model
-    img_size = (288, 288) 
-    # return resized image file 
-    return cv2.resize(img, img_size, interpolation=cv2.INTER_NEAREST)
 
 # Function to overlay a segmentation map on top of an RGB image.
 def image_overlay(image, segmented_image):
@@ -74,7 +64,7 @@ def image_overlay(image, segmented_image):
     return np.clip(image, 0.0, 1.0)
     
     
-    # also Inside model.py
+# also Inside model.py
 def get_patient_images(case_prefix, day_prefix, folder_path, user_id):
     patient_images = []
     for filename in os.listdir(folder_path):
@@ -83,10 +73,3 @@ def get_patient_images(case_prefix, day_prefix, folder_path, user_id):
             patient_images.append(os.path.join(folder_path, filename))
     return patient_images
 
-
-def generate_bouncing_gif(image_paths, output_gif_path):
-    images = []
-    for path in image_paths:
-        images.append(imageio.imread(path))
-    images.extend(reversed(images[1:-1]))  # Add images in reverse order, excluding the first and last
-    imageio.mimsave(output_gif_path, images, duration=0.2)
