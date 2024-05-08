@@ -1,13 +1,29 @@
 import os
 import numpy as np
-
 from skimage import measure
 from skimage.morphology import ball
 from PIL import Image
 from scipy.ndimage import zoom, binary_closing
 
+
+# load images from a specified 'overlaid' folder (passed as argument)
+def load_images_from_folder(folder, prefix):
+    images = []
+    if not os.path.exists(folder):
+        print("The specified folder does not exist.")
+        return images
+    for filename in sorted(os.listdir(folder)):
+        if filename.startswith(prefix) and filename.endswith('.png'):
+            img_path = os.path.join(folder, filename)
+            try:
+                with Image.open(img_path) as img:
+                    images.append(np.array(img))
+            except IOError:
+                print(f"Failed to load {filename}.")
+    return images
+
     
-# Function to extract the color channels into separate 3D volumes
+# step 1: extract the color channels into 3D volumes
 def extract_organ_masks(images, organ_colors):
     # Initialize a list of volumes for each organ color
     organ_volumes = [np.zeros((images[0].shape[0], images[0].shape[1]), dtype=bool) for _ in organ_colors]
@@ -22,17 +38,60 @@ def extract_organ_masks(images, organ_colors):
     return organ_volumes
 
 
-# Function to interpolate volumes
+# step 2: interpolate 3D volumes from masks
 def interpolate_volumes(volumes, scale_factor):
     return [zoom(volume, (1, 1, scale_factor), order=3) for volume in volumes]
 
 
-# Function to apply morphological closing to volumes
+# step 3: apply morphological closing to 3D volumes from masks
 def close_volumes(volumes, size=2):
     structure = ball(size)
     return [binary_closing(volume, structure=structure) for volume in volumes]
 
 
+# step 4: extract mesh from 3D volumes from masks
+def extract_mesh_from_volumes(volumes):
+    vertices_list = []
+    faces_list = []
+    colors_list = []  # Initialize colors list
+    colors = [[.976, 0.733, 0.749],   # light pink
+              [1.0, 0.50, 0.64],     # medium pink
+              [0.72, 0.32, 0.40]]     # dark pink
+    color_index = 0  
+
+    # Calculate overall center of all organs combined
+    overall_center = np.zeros(3, dtype=np.float64)
+    total_verts_count = 0
+
+    for volume in volumes:
+        threshold = np.max(volume) * 0.5
+        volume = volume[:, :, ::-1]  # Adjust coordinate system if necessary
+        verts, _, _, _ = measure.marching_cubes(volume, threshold)
+        total_verts_count += len(verts)
+        overall_center += np.sum(verts, axis=0)
+
+    overall_center /= total_verts_count  # Compute the average to get the center
+
+    # extract mesh for each organ and translate them relative to the overall center
+    for i, volume in enumerate(volumes):
+        threshold = np.max(volume) * 0.5
+        volume = volume[:, :, ::-1]  # Adjust coordinate system if necessary
+        verts, faces, _, _ = measure.marching_cubes(volume, threshold)
+
+        # translate vertices relative to the overall center
+        verts -= overall_center
+
+        print(f"Extracted mesh for organ {i+1} (Vertices: {len(verts)}, Faces: {len(faces)})")
+
+        vertices_list.append(verts)
+        faces_list.append(faces)
+        colors_list.append([colors[i]] * len(verts))  # Assign color to vertices of the organ
+        color_index += 1 # iterate over color index
+        
+    return vertices_list, faces_list, colors_list
+
+
+# determine if generated mesh is valid (inside of step 5)
 def is_valid_mesh(vertices, faces):
     if len(vertices) == 0 or len(faces) == 0:
         return False
@@ -44,7 +103,7 @@ def is_valid_mesh(vertices, faces):
                 return False
     return True
 
-
+# step 5: save to .obj and .mtl files
 def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_colors_list):
     obj_filename = filename[:-4] + '.obj'
     mtl_filename = filename[:-4] + '.mtl'
@@ -81,65 +140,7 @@ def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_
             f.write(f'd 1.0\n')    # Dissolve factor (opacity)
         
 
-def extract_mesh_from_volumes(volumes):
-    vertices_list = []
-    faces_list = []
-    colors_list = []  # Initialize colors list
-    colors = [[.976, 0.733, 0.749],   # light pink
-              [1.0, 0.50, 0.64],     # medium pink
-              [0.72, 0.32, 0.40]]     # dark pink
-    color_index = 0  # Start with purple for the first organ
-
-    # Define shadow colors corresponding to each organ
-
-    # Calculate overall center of all organs combined
-    overall_center = np.zeros(3, dtype=np.float64)
-    total_verts_count = 0
-
-    for volume in volumes:
-        threshold = np.max(volume) * 0.5
-        volume = volume[:, :, ::-1]  # Adjust coordinate system if necessary
-        verts, _, _, _ = measure.marching_cubes(volume, threshold)
-        total_verts_count += len(verts)
-        overall_center += np.sum(verts, axis=0)
-
-    overall_center /= total_verts_count  # Compute the average to get the center
-
-    # Extract mesh for each organ and translate them relative to the overall center
-    for i, volume in enumerate(volumes):
-        threshold = np.max(volume) * 0.5
-        volume = volume[:, :, ::-1]  # Adjust coordinate system if necessary
-        verts, faces, _, _ = measure.marching_cubes(volume, threshold)
-
-        # Translate vertices relative to the overall center
-        verts -= overall_center
-
-        print(f"Extracted mesh for organ {i+1} (Vertices: {len(verts)}, Faces: {len(faces)})")
-
-        vertices_list.append(verts)
-        faces_list.append(faces)
-        colors_list.append([colors[i]] * len(verts))  # Assign color to vertices of the organ
-        color_index += 1
-        
-    return vertices_list, faces_list, colors_list
-
-# Function to load images from a given folder
-def load_images_from_folder(folder, prefix):
-    images = []
-    if not os.path.exists(folder):
-        print("The specified folder does not exist.")
-        return images
-    for filename in sorted(os.listdir(folder)):
-        if filename.startswith(prefix) and filename.endswith('.png'):
-            img_path = os.path.join(folder, filename)
-            try:
-                with Image.open(img_path) as img:
-                    images.append(np.array(img))
-            except IOError:
-                print(f"Failed to load {filename}.")
-    return images
-
-
+# finally: call above functions in correct order
 def threed_render(images, combined_filename, organ_colors):
     # Check if images exist
     if images:
