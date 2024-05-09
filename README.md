@@ -2,7 +2,7 @@
 # From 2D Medical Image Segmentation to 3D Model: From AI to VR
 
 ## 1.  About Us - DATS DATA team
-We are four data science graduates from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among [Tina Mangum](https://github.com/tinamangum), [Ali Rahjouei](https://github.com/arahjou), [Sergio Sanz](https://github.com/sergio-sanz-rodriguez), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
+We are four data science graduates from Spiced Academy, each of us coming from diverse academic backgrounds. This repository showcases our final project, which has been a collaborative effort among [Tina Mangum](https://github.com/tinamangum), [Ali Rahjouei](https://github.com/arahjou), Sergio Sanz ([github](https://github.com/sergio-sanz-rodriguez), [linkedin](https://www.linkedin.com/in/sergio-sanz-rodriguez/)), [Di Walsh](https://github.com/diwalsh). Our aim is to blend innovative technology and teamwork to tackle challenging problems in medical imaging.
 
 ## 2. Introduction
 In this project, we aim to develop a comprehensive pipeline that uses state-of-the-art machine learning methods, including Convolutional Neural Networks (CNNs) and Transformers, combined with 3D modeling techniques. Our system segments and visualizes CT scan images and is packaged into a user-friendly web-based application. Additionally, we integrate the segmentation results into a virtual reality environment, enhancing the interactive experience for medical professionals. This solution is designed not only to aid in automatic segmentation of medical imagery but also to serve as an innovative educational tool in medical training.
@@ -49,9 +49,7 @@ The summary table below shows, for each model, the type of problem it solves, th
 
 ## 5. Web Application
 ### 5.1 Overview
-Our web application is built using Flask and integrates various technologies including JavaScript and Python. It acts as the interface where users can upload CT scans and view both the 2D segmentation results and the 3D visualizations.
-
-### 5.1 Python files
+Our web application is built using Flask (flask/) and integrates various technologies including JavaScript and Python. It acts as the interface where users can upload CT scans and view both the 2D segmentation results and the 3D visualizations.
 
 ## 6. 3D Model and VR Integration
 ### 6.1 Overview 
