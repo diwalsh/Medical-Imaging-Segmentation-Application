@@ -33,6 +33,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # ensure the upload folder exists!! lol
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+# mapping other folders within the uploads path  
+app.config['MASKS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'masks')
+app.config['NORMLZD_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'normalized')
+app.config['OBJS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'objects')
+app.config['OVERLAID_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'overlaid')
+
+# ensure subfolders exist
+folders = ['MASKS_FOLDER', 'NORMLZD_FOLDER', 'OBJS_FOLDER', 'OVERLAID_FOLDER']
+for folder_name in folders:
+    folder_path = app.config[folder_name]
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     
 # earthy pink colors for organs
 organ_colors = [[249, 187, 191], 
