@@ -9,7 +9,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from cs50 import SQL
-from helpers import apology, login_required, normalize, get_patient_images
+from helpers import apology, login_required, zip_filenames, format_name, normalize, get_patient_images
 from model import predict
 from threed import load_images_from_folder, threed_render
 
@@ -71,23 +71,23 @@ def about():
 def upload():
     # User reached route via POST (as by submitting a form)
     if request.method == "POST":
+        # retrieve posted zip file
         file = request.files['data_zip_file']
-        file_like_object = file.stream._file  
-        zipfile_ob = zipfile.ZipFile(file_like_object)
-        file_names = zipfile_ob.namelist()
         # Filter names to only include the filetype that you want:
-        file_names = [file_name for file_name in file_names if file_name.endswith(".png")]
+        file_names, zipfile_ob = zip_filenames(file)
+        # create list to gather files
         files = [] 
+        # iterate over each name in the filenames list
         for name in file_names:
+            # this is a weird mac thing, not sure if windows/linux has something of its own to add here
             if not name.startswith("__MACOSX"):
                 img_data = zipfile_ob.open(name).read()
                 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                     temp_file.write(img_data)
                     temp_file_path = temp_file.name
-                # the below img's need to be sent to a resizing function
-                # to be fed into a model for segmentation     
+                # min-max normalization of the images so actually visible and not dark   
                 img = normalize(temp_file_path)
-                # from here on, the normalized imgs are prepared for showing on screen to user
+                # normalized imgs are prepared for showing on screen via html to user
                 img_data_base64 = cv2.imencode('.png', img)[1].tostring()
                 img_data_base64 = base64.b64encode(img_data_base64).decode('utf-8')
                 # grabbing relevant data from file name to format for user display
@@ -95,7 +95,7 @@ def upload():
                 case_number = ''.join(filter(str.isdigit, parts[0]))
                 day_number = ''.join(filter(str.isdigit, parts[1]))
                 slice_number = int(parts[3])
-                formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
+                formatted_name = format_name(name)
                 # Create a unique filename for the image
                 user_id = str(session["user_id"])
                 # pop off any prefixed folder names

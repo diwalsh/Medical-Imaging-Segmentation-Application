@@ -1,5 +1,6 @@
 import cv2
 import os
+import zipfile
 import numpy as np
 from flask import redirect, render_template, session
 from functools import wraps
@@ -36,6 +37,25 @@ def login_required(f):
     return decorated_function
 
 
+def zip_filenames(zip):
+    file_like_object = zip.stream._file  
+    zipfile_ob = zipfile.ZipFile(file_like_object)
+    file_names = zipfile_ob.namelist()
+    # Filter names to only include the filetype that you want:
+    file_names = [file_name for file_name in file_names if file_name.endswith(".png")]
+    return file_names, zipfile_ob
+
+# grabbing relevant data from file name to format for user display
+def format_name(name):
+    parts = name.split("/")[-1].split("_")
+    case_number = ''.join(filter(str.isdigit, parts[0]))
+    day_number = ''.join(filter(str.isdigit, parts[1]))
+    slice_number = int(parts[3])
+    formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
+    return formatted_name
+                
+
+
 # load and convert image from a uint16 to uint8 datatype.
 def normalize(img_path):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED).astype(np.float32)
@@ -56,4 +76,5 @@ def get_patient_images(case_prefix, day_prefix, folder_path, user_id):
         if filename.startswith(f"case{case_prefix}_day{day_prefix}") and filename.endswith(f"_{user_id}.png"):
             patient_images.append(os.path.join(folder_path, filename))
     return patient_images
+
 
