@@ -156,14 +156,14 @@ def model():
     # set folder for output and filename for export
     wo_static_folder = 'uploads/objs'
     prefix = f'case{case_number}_day{day_number}'
-    combined_filename = os.path.join(OBJS_FOLDER, f'{prefix}.obj')
+    combined_filename = os.path.join(app.config['OBJS_FOLDER'], f'{prefix}.obj')
     # save path without static folder for smoother html handling 
     static_filename = os.path.join(wo_static_folder, f'{prefix}.obj')
     # save path to session
     session['obj_path'] = os.path.splitext(static_filename)[0]
 
     # load masks from folder, then create 3D model
-    images = load_images_from_folder(MASKS_FOLDER, prefix)
+    images = load_images_from_folder(app.config['MASKS_FOLDER'], prefix)
     threed_render(images, combined_filename, organ_colors)
 
     return render_template("model.html", predictions=predictions, image_paths=image_paths)
