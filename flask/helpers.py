@@ -52,6 +52,15 @@ def format_name(name):
     day_number = ''.join(filter(str.isdigit, parts[1]))
     slice_number = int(parts[3])
     formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
+    return formatted_name, case_number, day_number, slice_number
+
+# Define generate_title function
+def generate_title_slice(image_path):
+    parts = image_path.split("/")[-1].split("_")
+    case_number = ''.join(filter(str.isdigit, parts[0]))
+    day_number = ''.join(filter(str.isdigit, parts[1]))
+    slice_number = int(parts[3].split(".")[0])
+    formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
     return formatted_name
                 
 
