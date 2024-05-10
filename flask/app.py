@@ -39,7 +39,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 # mapping other folders within the uploads path  
 app.config['MASKS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'masks')
 app.config['NORMLZD_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'normalized')
-app.config['OBJS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'objects')
+app.config['OBJS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'objs')
 app.config['OVERLAID_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'overlaid')
 
 # ensure subfolders exist
