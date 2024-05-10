@@ -59,7 +59,11 @@ The 3D models are created using advanced rendering techniques and are compatible
 
 #### [3D_model](notebooks/3D_model.ipynb)
 
-## 7. References
+## 8. Trained models
+
+#### [Models](https://1drv.ms/f/s!AvhTz1997qwKneBo_BIKwFm2U-YdpQ?e=xsAh4f)
+
+## 9. References
 
 [UW-Madison GI Tract Image Segmentation](https://www.kaggle.com/competitions/uw-madison-gi-tract-image-segmentation/)  
 

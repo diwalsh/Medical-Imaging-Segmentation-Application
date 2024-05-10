@@ -9,7 +9,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from cs50 import SQL
-from helpers import apology, login_required, normalize, get_patient_images
+from helpers import apology, create_database, login_required, zip_filenames, format_name, generate_title_slice, normalize, get_patient_images
 from model import predict
 from threed import load_images_from_folder, threed_render
 
@@ -22,6 +22,8 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+create_database()
+
 # use CS50 built in Library to connect to database via sqlite
 # (handles messy sqlachemy connection openings/closures for you)
 db = SQL("sqlite:///dats.db")
@@ -33,6 +35,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # ensure the upload folder exists!! lol
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+# mapping other folders within the uploads path  
+app.config['MASKS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'masks')
+app.config['NORMLZD_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'normalized')
+app.config['OBJS_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'objs')
+app.config['OVERLAID_FOLDER'] = os.path.join(UPLOAD_FOLDER, 'overlaid')
+
+# ensure subfolders exist
+folders = ['MASKS_FOLDER', 'NORMLZD_FOLDER', 'OBJS_FOLDER', 'OVERLAID_FOLDER']
+for folder_name in folders:
+    folder_path = app.config[folder_name]
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     
 # earthy pink colors for organs
 organ_colors = [[249, 187, 191], 
@@ -71,31 +86,27 @@ def about():
 def upload():
     # User reached route via POST (as by submitting a form)
     if request.method == "POST":
+        # retrieve posted zip file
         file = request.files['data_zip_file']
-        file_like_object = file.stream._file  
-        zipfile_ob = zipfile.ZipFile(file_like_object)
-        file_names = zipfile_ob.namelist()
         # Filter names to only include the filetype that you want:
-        file_names = [file_name for file_name in file_names if file_name.endswith(".png")]
+        file_names, zipfile_ob = zip_filenames(file)
+        # create list to gather files
         files = [] 
+        # iterate over each name in the filenames list
         for name in file_names:
+            # this is a weird mac thing, not sure if windows/linux has something of its own to add here
             if not name.startswith("__MACOSX"):
                 img_data = zipfile_ob.open(name).read()
                 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                     temp_file.write(img_data)
                     temp_file_path = temp_file.name
-                # the below img's need to be sent to a resizing function
-                # to be fed into a model for segmentation     
+                # min-max normalization of the images so actually visible and not dark   
                 img = normalize(temp_file_path)
-                # from here on, the normalized imgs are prepared for showing on screen to user
+                # normalized imgs are prepared for showing on screen via html to user
                 img_data_base64 = cv2.imencode('.png', img)[1].tostring()
                 img_data_base64 = base64.b64encode(img_data_base64).decode('utf-8')
                 # grabbing relevant data from file name to format for user display
-                parts = name.split("/")[-1].split("_")
-                case_number = ''.join(filter(str.isdigit, parts[0]))
-                day_number = ''.join(filter(str.isdigit, parts[1]))
-                slice_number = int(parts[3])
-                formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
+                formatted_name, case_number, day_number, slice_number = format_name(name)
                 # Create a unique filename for the image
                 user_id = str(session["user_id"])
                 # pop off any prefixed folder names
@@ -104,9 +115,7 @@ def upload():
                 file_name = file_name.split(".png")[0]
                 img_filename = "{}_{}.png".format(file_name, user_id)
                 # create the normalized folder if not already there
-                normalized_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'normalized')
-                if not os.path.exists(normalized_folder):
-                    os.makedirs(normalized_folder)
+                normalized_folder = app.config['NORMLZD_FOLDER']
                 img_path = os.path.join(normalized_folder, img_filename)
                 # Save the image to the normalized folder
                 cv2.imwrite(img_path, img)
@@ -117,8 +126,7 @@ def upload():
         files = sorted(files, key=lambda x: x[2])
         session["uploaded_files"] = files
         # Retrieve image paths
-        folder_path = "static/uploads/normalized"
-        image_paths = get_patient_images(case_number, day_number, folder_path, user_id)
+        image_paths = get_patient_images(case_number, day_number, normalized_folder, user_id)
         # Store image paths in session
         session['image_paths'] = image_paths
         return render_template("pngs.html", files=files)
@@ -136,36 +144,31 @@ def model():
     overlay_image_paths = predict(image_paths)
     session['overlay_paths'] = overlay_image_paths
     
-    # Convert images to base64
     predictions = []
     for img_path in overlay_image_paths:
-        # Extract formatted name from filename
-        filename = os.path.splitext(os.path.basename(img_path))[0]
-        parts = filename.split("_")
-        case_number = ''.join(filter(str.isdigit, parts[0]))
-        day_number = ''.join(filter(str.isdigit, parts[1]))
-        slice_number = int(parts[3].split(".")[0])
-        formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
-        
-        img_name = os.path.basename(img_path)  # Extract file name (no path)
-        
+        # extract filename without path
+        img_name = os.path.basename(img_path)  
+        # extract name parts and formatted name 
+        formatted_name, case_number, day_number, slice_number = format_name(img_name)
+        # append to predictions list
         predictions.append((img_path, formatted_name, img_name))
-    
     # Sort the list of file names
     predictions = sorted(predictions, key=lambda x: x[2])
     
     # set folder for output and filename for export
-    output_folder = 'static/uploads/objs'
-    static_folder = 'uploads/objs'
-    combined_filename = os.path.join(output_folder, f'case{case_number}_day{day_number}.obj') # make dynamic
-    static_filename = os.path.join(static_folder, f'case{case_number}_day{day_number}.obj')
+    wo_static_folder = 'uploads/objs'
+    prefix = f'case{case_number}_day{day_number}'
+    combined_filename = os.path.join(app.config['OBJS_FOLDER'], f'{prefix}.obj')
+    combined_filename = os.path.normpath(combined_filename)  # Normalize the path
+    # save path without static folder for smoother html handling 
+    static_filename = os.path.join(wo_static_folder, f'{prefix}.obj')
+    static_filename = os.path.normpath(static_filename)  # Normalize the path
+    static_filename = static_filename.replace('\\', '/')
+    # save path to session
     session['obj_path'] = os.path.splitext(static_filename)[0]
 
-    # Set the folder where your images are stored
-    image_folder = 'static/uploads/masks'  # replace with the path to your image folder
-    prefix = f'case{case_number}_day{day_number}' # make dynamic
-
-    images = load_images_from_folder(image_folder, prefix)
+    # load masks from folder, then create 3D model
+    images = load_images_from_folder(app.config['MASKS_FOLDER'], prefix)
     threed_render(images, combined_filename, organ_colors)
 
     return render_template("model.html", predictions=predictions, image_paths=image_paths)
@@ -194,15 +197,6 @@ def render():
     
     db.execute("INSERT INTO renderings (user_id, case_name, case_number, day_number, cover_image, mask_paths, obj_path) VALUES (?, ?, ?, ?, ?, ?, ?)",
                user_id, title, case_number, day_number, cover_image_path, mask_paths, obj_path)
-    
-    # Define generate_title function
-    def generate_title_slice(image_path):
-        parts = image_path.split("/")[-1].split("_")
-        case_number = ''.join(filter(str.isdigit, parts[0]))
-        day_number = ''.join(filter(str.isdigit, parts[1]))
-        slice_number = int(parts[3].split(".")[0])
-        formatted_name = "Case {}; Day {}: Slice {}".format(case_number, day_number, slice_number)
-        return formatted_name
     
     return render_template("render2.html", image_paths=image_paths, obj_path=obj_path, title=title, generate_title_slice=generate_title_slice)
 
