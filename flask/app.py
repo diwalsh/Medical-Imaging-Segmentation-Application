@@ -163,6 +163,7 @@ def model():
     # save path without static folder for smoother html handling 
     static_filename = os.path.join(wo_static_folder, f'{prefix}.obj')
     static_filename = os.path.normpath(static_filename)  # Normalize the path
+    static_filename = static_filename.replace('\\', '/')
     # save path to session
     session['obj_path'] = os.path.splitext(static_filename)[0]
 
