@@ -9,7 +9,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from cs50 import SQL
-from helpers import apology, login_required, zip_filenames, format_name, generate_title_slice, normalize, get_patient_images
+from helpers import apology, create_database, login_required, zip_filenames, format_name, generate_title_slice, normalize, get_patient_images
 from model import predict
 from threed import load_images_from_folder, threed_render
 
@@ -21,6 +21,8 @@ app = Flask(__name__, static_url_path='/static')
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+create_database()
 
 # use CS50 built in Library to connect to database via sqlite
 # (handles messy sqlachemy connection openings/closures for you)

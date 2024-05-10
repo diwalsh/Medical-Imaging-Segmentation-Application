@@ -37,6 +37,42 @@ def login_required(f):
     return decorated_function
 
 
+# Function to create the database and tables if they don't exist
+def create_database():
+    if not os.path.exists('dats.db'):
+        # Connect to the database
+        conn = sqlite3.connect('dats.db')
+        cursor = conn.cursor()
+
+        # Create the tables
+        cursor.execute('''CREATE TABLE users (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            username TEXT NOT NULL,
+                            hash TEXT NOT NULL
+                        )''')
+
+        cursor.execute('''CREATE TABLE renderings (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER,
+                            case_name TEXT,
+                            case_number INTEGER,
+                            day_number INTEGER,
+                            cover_image TEXT,
+                            mask_paths TEXT,
+                            obj_path TEXT,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users(id)
+                        )''')
+
+        # Commit changes and close the connection
+        conn.commit()
+        conn.close()
+
+        print("Database 'dats.db' created successfully.")
+    else:
+        print("Database 'dats.db' already exists.")
+
+
 def zip_filenames(zip):
     file_like_object = zip.stream._file  
     zipfile_ob = zipfile.ZipFile(file_like_object)
