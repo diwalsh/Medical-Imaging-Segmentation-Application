@@ -12,8 +12,10 @@ def load_images_from_folder(folder, prefix):
     if not os.path.exists(folder):
         print("The specified folder does not exist.")
         return images
+    # Split prefix into parts
+    prefix_parts = prefix.split('_')
     for filename in sorted(os.listdir(folder)):
-        if filename.startswith(prefix) and filename.endswith('.png'):
+        if filename.startswith(f'{prefix_parts[0]}_{prefix_parts[1]}') and filename.endswith(f'{prefix_parts[2]}_mask.png'):
             img_path = os.path.join(folder, filename)
             try:
                 with Image.open(img_path) as img:
@@ -105,7 +107,7 @@ def is_valid_mesh(vertices, faces):
 # step 5: save to .obj and .mtl files
 def save_as_obj_with_mtl(filename, organ_vertices_list, organ_faces_list, organ_colors_list):
     # retrieve base-filename and append extension
-    obj_filename = filename[:-4] + '.obj'
+    obj_filename = filename
     mtl_filename = filename[:-4] + '.mtl'
 
     # write .obj file
