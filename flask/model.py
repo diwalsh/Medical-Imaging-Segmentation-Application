@@ -83,12 +83,15 @@ def num_to_rgb(num_arr, color_map=id2color):
 # Function to overlay a segmentation map on top of an RGB image.
 def image_overlay(image, segmented_image):
     alpha = 1.0  # Transparency for the original image.
-    beta = 0.8  # Transparency for the segmentation map.
+    beta = 0.99  # Transparency for the segmentation map.
     gamma = 0.0  # Scalar added to each sum.
 
     # RBG to BGR for both, overlay transparent masks over CT scan, back to RGB
     segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_RGB2BGR)
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # Set to zero the segmented pixels in the images to ensure opacity after overlay
+    image = image * np.where(segmented_image == 0, 1, 0).astype(np.uint8)
+    # apply mask overlay
     image = cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
