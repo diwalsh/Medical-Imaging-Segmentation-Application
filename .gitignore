@@ -147,3 +147,4 @@ models/*
 *.obj
 flask_session/
 static/uploads/
+flask/static/uploads/objs/.DS_Store
