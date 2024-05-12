@@ -83,7 +83,7 @@ def num_to_rgb(num_arr, color_map=id2color):
 # Function to overlay a segmentation map on top of an RGB image.
 def image_overlay(image, segmented_image):
     alpha = 1.0  # Transparency for the original image.
-    beta = 0.99  # Transparency for the segmentation map.
+    beta = 1.0   # 0.8 # Transparency for the segmentation map.
     gamma = 0.0  # Scalar added to each sum.
 
     # RBG to BGR for both, overlay transparent masks over CT scan, back to RGB
@@ -91,14 +91,14 @@ def image_overlay(image, segmented_image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     # Set to zero the segmented pixels in the images to ensure opacity after overlay
     image = image * np.where(segmented_image == 0, 1, 0).astype(np.uint8)
-    # apply mask overlay
-    image = cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
+    # Apply overlay
+    cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     return np.clip(image, 0.0, 1.0)
 
 
-# load and resize the image to the specified size.
+# Load and resize the image to the specified size.
 # The interpolation method used is nearest-neighbor for the segmentation model.
 def load_file_nearest(size, file_path, depth=0):
     file = cv2.imread(file_path, depth)
@@ -107,7 +107,7 @@ def load_file_nearest(size, file_path, depth=0):
     return cv2.resize(file, (size), interpolation=cv2.INTER_NEAREST)
 
 
-# load and resize the image to the specified size.
+# Load and resize the image to the specified size.
 # The interpolation method used is linear for the classification model.
 def load_file_linear(size, file_path, depth=0):
     file = cv2.imread(file_path, depth)
@@ -135,7 +135,7 @@ def setup_transforms(mean, std):
 
 @torch.inference_mode()
 def inference(model, class_model, image_paths, img_size, batch_size=24, device="cpu"):
-    # retrieve number of images, computer number of batches
+    # Retrieve number of images, computer number of batches
     num_images = len(image_paths)
     num_batches = (num_images + batch_size - 1) // batch_size
     
@@ -148,33 +148,38 @@ def inference(model, class_model, image_paths, img_size, batch_size=24, device="
     # Create a composition of preprocessing transformations for the segmentation model
     transforms  = setup_transforms(mean=mean_seg, std=std_seg)
     
-    # list to collect overlaid paths
+    # List to collect overlaid paths
     overlay_paths = []
+
+    # Get the aspect ratio and dimensions of the original image
+    height, width, channels = cv2.imread(image_paths[0]).shape    
+    IMAGE_SIZE_ORIG = (width, height)
 
     # iterate over each batch 
     for batch_idx in range(num_batches):
-        # capturing starting and ending index for each batch
+        # Capturing starting and ending index for each batch
         start_idx = batch_idx * batch_size
         end_idx = min((batch_idx + 1) * batch_size, num_images)
         batch_diff = end_idx - start_idx + 1
-        # initiating lists for collecting batches of images
+        # Initiating lists for collecting batches of images
         batch_images_org = []         
         batch_images_clf = []
         batch_images_norm = []
 
-        # iterate over each image in batch
+        # Iterate over each image in batch
         for idx in range(start_idx, end_idx):
             
+                      
             # Load and preprocess image for classification
             image_clf = load_file_linear(DatasetConfig.IMAGE_SIZE, image_paths[idx], depth=cv2.IMREAD_COLOR)
             image_clf = normalize_classif(image_clf, mean_clf, std_clf)
             
-            # Load and preprocess image file for segmentation
+            # Load and preprocess image file for segmentation. Note: must be nearest, as the model was trained with this method.
             image_org = load_file_nearest(DatasetConfig.IMAGE_SIZE, image_paths[idx], depth=cv2.IMREAD_COLOR)
             # image_norm = transforms.ToTensor()(image_org) #-- that is from older version
             image_norm = transforms(image=image_org)["image"]
         
-            # batch_image_org.append(image_org)
+            # Batch_image_org.append(image_org)
             batch_images_org.append(image_org)            
             batch_images_clf.append(image_clf)
             batch_images_norm.append(image_norm)
@@ -196,20 +201,26 @@ def inference(model, class_model, image_paths, img_size, batch_size=24, device="
         # Apply overlay to each batch image
         for i in range(len(batch_images_org)):
             batch_img_np = np.float32(batch_images_org[i]) / 255.0
-            pred_mask_rgb = num_to_rgb(pred_all[i], color_map=id2color)
+            pred_mask_rgb = num_to_rgb(pred_all[i], color_map=id2color)            
             overlay_img = image_overlay(batch_img_np, pred_mask_rgb)
-            
+           
             # Get the filename from the original image path
             save_path = 'static/uploads/overlaid'
             mask_save_path = 'static/uploads/masks'  # New path for saving masks
             filename = os.path.splitext(os.path.basename(image_paths[start_idx + i]))[0]
             overlay_filename = os.path.join(save_path, f"{filename}_overlaid.png")
             mask_filename = os.path.join(mask_save_path, f"{filename}_mask.png")  # Mask filename
-            
+
+            # Resize the overlaid and mask images to original size
+            if (IMAGE_SIZE_ORIG[0] != DatasetConfig.IMAGE_SIZE[0]) & (IMAGE_SIZE_ORIG[1] != DatasetConfig.IMAGE_SIZE[1]):
+                overlay_img = cv2.resize(overlay_img, IMAGE_SIZE_ORIG, interpolation=cv2.INTER_LINEAR)
+                pred_mask_rgb = cv2.resize(pred_mask_rgb, IMAGE_SIZE_ORIG, interpolation=cv2.INTER_LINEAR)
+
             # Save the overlaid image
-            cv2.imwrite(overlay_filename, (overlay_img * 255).astype(np.uint8), [cv2.IMWRITE_PNG_COMPRESSION, 9])
+            cv2.imwrite(overlay_filename, (overlay_img * 255).astype(np.uint8), [cv2.IMWRITE_PNG_COMPRESSION, 1])
+
             # Save the mask image
-            cv2.imwrite(mask_filename, (pred_mask_rgb * 255).astype(np.uint8), [cv2.IMWRITE_PNG_COMPRESSION, 9])
+            cv2.imwrite(mask_filename, (pred_mask_rgb * 255).astype(np.uint8), [cv2.IMWRITE_PNG_COMPRESSION, 1])
             
             overlay_paths.append(overlay_filename)
             

@@ -70,8 +70,7 @@ def create_database():
         conn.close()
 
         print("Database 'dats.db' created successfully.")
-    else:
-        print("Database 'dats.db' already exists.")
+
 
 
 def zip_filenames(zip):

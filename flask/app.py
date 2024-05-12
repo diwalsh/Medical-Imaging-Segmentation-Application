@@ -157,9 +157,9 @@ def model():
     
     # set folder for output and filename for export
     wo_static_folder = 'uploads/objs'
-    prefix = f'case{case_number}_day{day_number}'
+    user_id = session["user_id"]
+    prefix = f'case{case_number}_day{day_number}_{user_id}'
     combined_filename = os.path.join(app.config['OBJS_FOLDER'], f'{prefix}.obj')
-    combined_filename = os.path.normpath(combined_filename)  # Normalize the path
     # save path without static folder for smoother html handling 
     static_filename = os.path.join(wo_static_folder, f'{prefix}.obj')
     static_filename = os.path.normpath(static_filename)  # Normalize the path
