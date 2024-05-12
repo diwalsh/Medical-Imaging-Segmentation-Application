@@ -222,7 +222,7 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients):
     ORIG_IMG_DIR = input_dir #os.path.join(input_dir,train)
     CASE_FOLDERS = os.listdir(ORIG_IMG_DIR)
 
-    # Define paths for training and validation image and mask directories
+    # Define paths for training and test image and mask directories
     ROOT_DATASET_DIR = output_dir
     ROOT_TRAIN_DIR_0 = os.path.join(ROOT_DATASET_DIR, "train", "0")
     ROOT_TRAIN_DIR_1 = os.path.join(ROOT_DATASET_DIR, "train", "1")
@@ -241,7 +241,7 @@ def main(dimension, stride, csv, input_dir, output_dir, test_patients):
     mask = (~oDF["segmentation"].isna()).astype(int)
     oDF['classification'] = mask
     
-    # Main script execution: for each folder, split the data into training and validation sets, and create/write image-mask pairs.
+    # Main script execution: for each folder, split the data into training and test sets, and create/write image-mask pairs.
     if dimension != '2.5d':
         if dimension != '2d':
             print("The dimension is different to the specified ones. Using 2d by default")
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    # Convert valid_patients argument to a list
+    # Convert test_patients argument to a list
     args.test_patients = ast.literal_eval(args.test_patients)
 
     # Check if no arguments are provided, then print help
