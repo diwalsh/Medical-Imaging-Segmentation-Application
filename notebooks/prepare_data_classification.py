@@ -277,7 +277,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Convert valid_patients argument to a list
-    args.valid_patients = ast.literal_eval(args.test_patients)
+    args.test_patients = ast.literal_eval(args.test_patients)
 
     # Check if no arguments are provided, then print help
     #if not any(vars(args).values()):
