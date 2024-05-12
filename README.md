@@ -46,6 +46,8 @@ The summary table below shows, for each model, the type of problem it solves, th
 #### 2a. [prepare_data_segmentation](notebooks/prepare_data_segmentation.ipynb)
 #### 2b. [prepare_data_segmentation](notebooks/prepare_data_segmentation.py)
 #### 3. [model_evaluation](notebooks/model_evaluation.ipynb)
+#### 3a. [prepare_data_model_evaluation](notebooks/prepare_data_model_evaluation.ipynb)
+#### 3b. [prepare_data_model_evaluation](notebooks/prepare_data_model_evaluation.py)
 
 ## 5. Web Application
 ### 5.1 Overview
