@@ -23,9 +23,9 @@ Our approach involved several key steps, starting from data sourcing to deployin
 - **Model B (Segmentation):** After classification, this model segments the images, pinpointing the exact locations of the organs within the scans. The segmentation model utilizes Transformer technology.
 
 <br>  
-
+<div align="center">
 <img src="images/model_workflow.png" width="750" class="center">
-
+</div>
 <br>  
 
 The summary table below shows, for each model, the type of problem it solves, the deep learning technology used, and the libraries employed.
