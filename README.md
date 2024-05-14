@@ -53,6 +53,9 @@ The summary table below shows, for each model, the type of problem it solves, th
 ### 5.1 Overview
 Our web application is built using Flask (flask/) and integrates various technologies including JavaScript and Python. It acts as the interface where users can upload CT scans and view both the 2D segmentation results and the 3D visualizations.
 
+[Organsizer Web-App Demo](https://www.youtube.com/watch?v=WF_rvcBju3Q)
+[Organsizer VR Demo](https://www.youtube.com/watch?v=3rGm5jT_Cjg)
+
 ## 6. 3D Model and VR Integration
 ### 6.1 Overview 
 The 3D models are created using advanced rendering techniques and are compatible with Meta’s VR platforms. This allows for an interactive exploration of medical imagery in a virtual reality setting, providing a unique educational and diagnostic tool that can be accessed worldwide.
