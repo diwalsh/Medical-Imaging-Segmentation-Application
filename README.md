@@ -24,7 +24,7 @@ Our approach involved several key steps, starting from data sourcing to deployin
 
 <br>  
 
-<img src="images/model_workflow.png" width="7500" class="center">
+<img src="images/model_workflow.png" width="750" class="center">
 
 <br>  
 
