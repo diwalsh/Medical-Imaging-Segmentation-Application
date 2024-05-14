@@ -53,9 +53,8 @@ The summary table below shows, for each model, the type of problem it solves, th
 ### 5.1 Overview
 Our web application is built using Flask (flask/) and integrates various technologies including JavaScript and Python. It acts as the interface where users can upload CT scans and view both the 2D segmentation results and the 3D visualizations. Check out our demos below!:
 
-[Organsizer Web-App Demo](https://www.youtube.com/watch?v=WF_rvcBju3Q)
-
-[Organsizer VR Demo](https://www.youtube.com/watch?v=3rGm5jT_Cjg)
+- <a href="https://www.youtube.com/watch?v=WF_rvcBju3Q" target="_blank">Organsizer Web-App Demo</a>
+- <a href="https://www.youtube.com/watch?v=3rGm5jT_Cjg" target="_blank">Organsizer VR Demo</a>
 
 ## 6. 3D Model and VR Integration
 ### 6.1 Overview 
