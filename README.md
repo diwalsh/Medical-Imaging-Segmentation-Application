@@ -35,7 +35,7 @@ The summary table below shows, for each model, the type of problem it solves, th
 | Model   | Type                      | Technology                | Libraries          |
 | --------| ------------------------- | --------------------------|--------------------|
 | A       | Binary classification     | CNN (RestNet50V2)         | TensorFlow, Keras  |
-| B       | Three-class segmentation  | Transformers (SegFormer)  | Pytorch, Lightning |
+| B       | Three-class segmentation  | Transformer (SegFormer)   | Pytorch, Lightning |
 
 ### 4.2. Notebooks and Python Files
 
